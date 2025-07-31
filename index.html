@@ -2,186 +2,170 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hansa Mimarlık - Modern mimarlık ve tasarım firmamızın tek sayfa web sitesi demo." />
+  <meta name="keywords" content="mimarlık, Hansa, mimari tasarım, projeler, mimarlık firmasi" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hansa Mimarlık</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
-    /* Genel Ayarlar */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* Temel sıfırlama ve tipografi */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
 
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f5f5f5;
-      color: #2f2f2f;
-      line-height: 1.6;
-    }
+    /* Navigasyon çubuğu */
+    header { position: fixed; width: 100%; top: 0; left: 0; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; }
+    .navbar { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; }
+    .navbar .brand { font-size: 1.5rem; font-weight: bold; color: #333; }
+    .navbar .brand a { text-decoration: none; color: inherit; }
+    .nav-links { list-style: none; display: flex; }
+    .nav-links li { margin-left: 1rem; }
+    .nav-links li a { text-decoration: none; color: #333; font-weight: 500; }
+    .nav-links li a:hover { color: #005a8c; transition: color 0.3s; }
 
-    header {
-      background-color: #2f4f4f;
-      color: white;
-      padding: 40px 20px;
-      text-align: center;
-    }
-
-    header h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      letter-spacing: 2px;
-    }
-
-    header p {
-      font-size: 1.2rem;
-      opacity: 0.85;
-    }
-
-    nav {
-      background-color: white;
-      display: flex;
-      justify-content: center;
-      padding: 15px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    nav a {
-      margin: 0 20px;
-      text-decoration: none;
-      color: #2f2f2f;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: #3d9970;
-    }
-
-    .hero {
-      background: url('https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
-      height: 500px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-      flex-direction: column;
-    }
-
-    .hero h2 {
-      font-size: 2.8rem;
-      margin-bottom: 15px;
-    }
-
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      text-align: center;
-    }
-
-    .content {
-      max-width: 1000px;
-      margin: 50px auto;
-      padding: 0 20px;
-    }
-
-    .content h3 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      color: #3d9970;
-    }
-
-    .content p {
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-    }
-
-    .cta {
-      text-align: center;
-      margin: 60px 0;
-    }
-
-    .cta a {
-      text-decoration: none;
-      background-color: #3d9970;
-      color: white;
-      padding: 15px 30px;
-      border-radius: 5px;
-      font-size: 1.1rem;
-      transition: background-color 0.3s;
-    }
-
-    .cta a:hover {
-      background-color: #337f5c;
-    }
-
-    footer {
-      background-color: #2f4f4f;
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-    }
-
-    footer p {
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-
+    /* Hamburger menü (mobil) */
+    .burger { display: none; cursor: pointer; flex-direction: column; }
+    .burger div { width: 25px; height: 3px; background: #333; margin: 4px 0; transition: 0.3s; }
     @media (max-width: 768px) {
-      header h1 {
-        font-size: 2rem;
-      }
-
-      .hero h2 {
-        font-size: 2rem;
-      }
-
-      nav {
-        flex-direction: column;
-      }
-
-      nav a {
-        margin: 10px 0;
-      }
+      .nav-links { position: absolute; right: 0; top: 0; background: #fff; height: 100vh; width: 50%; flex-direction: column; align-items: center; transform: translateX(100%); transition: transform 0.5s ease-in; padding-top: 5rem; }
+      .nav-links li { margin: 1.5rem 0; }
+      .burger { display: flex; }
+      .nav-active { transform: translateX(0); }
+      .toggle .line1 { transform: rotate(-45deg) translate(-5px, 6px); }
+      .toggle .line2 { opacity: 0; }
+      .toggle .line3 { transform: rotate(45deg) translate(-5px, -6px); }
     }
+
+    /* Ana Sayfa (Home) */
+    #home { background: url('https://source.unsplash.com/1600x900/?architecture,modern') no-repeat center center/cover; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    #home .overlay { background: rgba(0,0,0,0.5); padding: 2rem; text-align: center; color: #fff; }
+    #home h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+    #home p { font-size: 1.25rem; }
+
+    /* Diğer bölümler */
+    section { padding: 5rem 2rem; max-width: 1200px; margin: auto; }
+    section h2 { font-size: 2rem; margin-bottom: 1rem; color: #005a8c; }
+    section p { margin-bottom: 1rem; }
+    section img { max-width: 100%; height: auto; border-radius: 5px; }
+
+    /* Projeler bölümü gridi */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .projects-grid figure { text-align: center; }
+    .projects-grid figcaption { margin-top: 0.5rem; font-size: 0.9rem; color: #666; }
+
+    /* Hizmetler kısmı */
+    .services-list { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
+    .service-item { flex: 1 1 200px; background: #f9f9f9; padding: 1.5rem; border-radius: 8px; text-align: center; }
+    .service-item h3 { margin-bottom: 0.5rem; color: #333; }
+    .service-item p { color: #555; }
+
+    /* Buton stili */
+    .btn { display: inline-block; padding: 0.75rem 1.5rem; background: #005a8c; color: #fff; text-decoration: none; border-radius: 5px; transition: background 0.3s; }
+    .btn:hover { background: #003f5e; }
+
+    /* İletişim formu stili */
+    .contact-form { display: flex; flex-direction: column; max-width: 400px; margin: auto; }
+    .contact-form label { margin-bottom: 0.5rem; font-weight: bold; }
+    .contact-form input, .contact-form textarea { padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    .contact-form button { align-self: flex-start; }
   </style>
 </head>
 <body>
-
   <header>
-    <h1>Hansa Mimarlık</h1>
-    <p>Geleceğe Açılan Kapı</p>
+    <nav class="navbar">
+      <div class="brand"><a href="#home">Hansa Mimarlık</a></div>
+      <ul class="nav-links">
+        <li><a href="#home">Ana Sayfa</a></li>
+        <li><a href="#about">Hakkımızda</a></li>
+        <li><a href="#projects">Projeler</a></li>
+        <li><a href="#services">Hizmetler</a></li>
+        <li><a href="#contact">İletişim</a></li>
+      </ul>
+      <div class="burger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+      </div>
+    </nav>
   </header>
 
-  <nav>
-    <a href="#">Ana Sayfa</a>
-    <a href="#">Projeler</a>
-    <a href="#">Hakkımızda</a>
-    <a href="#">İletişim</a>
-  </nav>
-
-  <section class="hero">
-    <h2>Yaşam Alanlarını Sanata Dönüştürüyoruz</h2>
-    <p>Mimari estetik, işlevsellik ve modern çizgilerle harmanlanmış, size özel yaşam alanları tasarlıyoruz.</p>
+  <section id="home">
+    <div class="overlay">
+      <h1>Hansa Mimarlık</h1>
+      <p>Modern Mimarlık ve Tasarım Çözümleri</p>
+      <a href="#projects" class="btn">Projelerimizi Keşfet</a>
+    </div>
   </section>
 
-  <section class="content">
-    <h3>Neden Hansa Mimarlık?</h3>
-    <p>Hansa Mimarlık olarak sizi sizden daha iyi anlamaya çalışıyoruz. Her projemizde çağdaş tasarım anlayışına, yenilikçi fikirlere ve detaylara verdiğimiz önemle öne çıkıyoruz.</p>
-    
-    <p>Yalnızca binalar değil, aynı zamanda yaşam tarzları tasarlıyoruz. Kullandığımız malzemelerden mekan kurgusuna kadar her adımda sürdürülebilirlik, zarafet ve işlevselliği bir araya getiriyoruz.</p>
+  <section id="about">
+    <h2>Hakkımızda</h2>
+    <p>Hansa Mimarlık, uzman ekibi ile modern ve şık mimari tasarımlar yaratır. Deneyimli mimarlardan oluşan ekibimiz, her projeyi estetik ve fonksiyonelliği birleştirerek hayata geçirir.</p>
+    <p>Misyonumuz, her mekâna değer katmak ve yenilikçi tasarım çözümleri sunmaktır.</p>
   </section>
 
-  <div class="cta">
-    <a href="https://sahbero.github.io/Deneme">Projelerimizi İnceleyin</a>
-  </div>
+  <section id="projects">
+    <h2>Projelerimiz</h2>
+    <div class="projects-grid">
+      <figure>
+        <img src="https://source.unsplash.com/400x300/?architecture,building" alt="Modern cam cepheli bina">
+        <figcaption>Modern cam cepheli bina tasarımı</figcaption>
+      </figure>
+      <figure>
+        <img src="https://source.unsplash.com/400x300/?architecture,interior" alt="İç mekan ofis tasarımı">
+        <figcaption>İç mekan ofis tasarımı</figcaption>
+      </figure>
+      <figure>
+        <img src="https://source.unsplash.com/400x300/?architecture,minimal" alt="Minimalist ev mimarisi">
+        <figcaption>Minimalist ev mimarisi</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="services">
+    <h2>Hizmetlerimiz</h2>
+    <div class="services-list">
+      <div class="service-item">
+        <h3>Mimari Tasarım</h3>
+        <p>Yaratıcı ve fonksiyonel mekân tasarımları</p>
+      </div>
+      <div class="service-item">
+        <h3>Proje Danışmanlığı</h3>
+        <p>Başından sonuna kadar uzman desteği</p>
+      </div>
+      <div class="service-item">
+        <h3>Uygulama Denetimi</h3>
+        <p>İnşaat sürecinde kalite kontrol ve koordinasyon</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>İletişim</h2>
+    <p>Adres: İstanbul, Türkiye</p>
+    <p>Telefon: (0212) 000-0000</p>
+    <p>E-posta: info@hansamimarlik.com</p>
+    <form class="contact-form">
+      <label for="name">İsim</label>
+      <input type="text" id="name" name="name" required />
+      <label for="email">E-posta</label>
+      <input type="email" id="email" name="email" required />
+      <label for="message">Mesajınız</label>
+      <textarea id="message" name="message" rows="4" required></textarea>
+      <button type="submit" class="btn">Gönder</button>
+    </form>
+  </section>
 
   <footer>
-    <p>&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
+    <p style="text-align:center; padding:1rem 0; background:#f4f4f4; margin-top:2rem;">&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
   </footer>
 
+  <script>
+    // Hamburger menü açma/kapama
+    const burger = document.querySelector('.burger');
+    const navLinks = document.querySelector('.nav-links');
+    burger.addEventListener('click', () => {
+      navLinks.classList.toggle('nav-active');
+      burger.classList.toggle('toggle');
+    });
+  </script>
 </body>
-  google-site-verification: google3ddaefd681f1a6d2.html
 </html>
-
