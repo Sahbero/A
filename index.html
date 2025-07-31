@@ -1,155 +1,145 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial‑scale=1.0">
   <title>Hansa Mimarlık</title>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Renk Paleti */
     :root {
-      --bg: #ffffff;
-      --text: #1d1d1f;
+      --text-color: #000000;
+      --muted-gray: #A3AAAE;
+      --bg-light: #F9F6EF;
       --accent: #0071e3;
-      --glass-bg: rgba(255,255,255,0.6);
     }
-    *, *::before, *::after { box-sizing: border-box; }
+    /* Font Ayarları */
+    @font-face {
+      font-family: 'SF Pro';
+      src: local('SF Pro'), sans-serif;
+      font-weight: 400 700;
+      font-display: swap;
+    }
     body {
       margin:0; padding:0;
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      line-height: 1.5;
+      color: var(--text-color);
+      background: var(--bg-light);
+      font-family: 'SF Pro', system-ui, sans-serif;
+      line-height:1.5;
     }
-    header {
-      position: sticky; top:0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1rem 4%;
-      z-index: 100;
+    h1, h2, h3 {
+      font-weight: 600;
+      margin:1em 0 0.5em;
     }
-    .logo { font-size: 1.8rem; font-weight:700; }
+    h1 { font-size:2.5rem; }
+    h2 { font-size:1.75rem; }
+    p { font-size:1rem; color: var(--text-color); }
+
+    /* Navigation */
+    nav {
+      display:flex; justify-content:center;
+      gap:2rem; padding:1rem;
+      background: white; position:sticky; top:0; z-index:100;
+      border-bottom:1px solid var(--muted-gray);
+    }
     nav a {
-      margin-left:2rem;
-      color: var(--text); text-decoration: none;
-      font-weight: 500; transition: color .3s;
+      text-decoration:none; color: var(--text-color);
+      font-weight:500;
     }
     nav a:hover { color: var(--accent); }
+
+    /* Kahraman Bölüm */
     .hero {
-      display:flex; flex-direction:column; justify-content:center; align-items:center;
+      position: relative;
+      display:flex; align-items:center; justify-content:center;
       height:80vh;
-      background: linear-gradient(135deg, #f5f5f7, #ffffff);
-      text-align:center; padding:0 2rem;
+      background: url('hero.jpg') center/cover no-repeat;
+      color: white; text-align:center;
     }
-    .hero h1 {
-      font-size:3.5rem; font-weight:700;
-      margin-bottom:1rem;
+    .hero h1 { font-size:3rem; text-shadow:0 1px 4px rgba(0,0,0,0.5); }
+    .hero button {
+      margin-top:1.5rem;
+      padding:1rem 2rem;
+      font-size:1rem; font-weight:600;
+      color:white; background: var(--accent);
+      border:none; border-radius: 8px;
+      cursor:pointer;
+      transition: background .3s, transform .3s;
     }
-    .hero p {
-      font-size:1.125rem; max-width:600px; color:#3c3c3e; margin-bottom:2rem;
+    .hero button:hover {
+      background:#005bb5;
+      transform: scale(1.05);
     }
-    .btn {
-      color:#fff; background: var(--accent); border:none;
-      padding: .75rem 2rem; border-radius:6px;
-      font-size:1rem; font-weight:600; cursor:pointer;
-      transition: background .3s;
-    }
-    .btn:hover { background: #005bb5; }
-    section {
-      padding:4rem 4%;
-    }
-    .section-title {
-      font-size:2rem; font-weight:700;
-      text-align:center; margin-bottom:2.5rem;
-    }
-    .grid {
-      display:grid; gap:2rem;
-      grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+
+    /* İçerik Kartları (4 sütun) */
+    .features {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:2rem; padding:4rem 2rem;
     }
     .card {
-      background:#fafafa; padding:2rem; border-radius:12px;
-      box-shadow:0 4px 15px rgba(0,0,0,0.05);
-      transition: transform .3s, box-shadow .3s;
+      background:white; padding:2rem;
+      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05);
+      text-align:center;
+      transition: transform .2s;
     }
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow:0 8px 30px rgba(0,0,0,0.1);
-    }
-    #projeler .card img {
-      width:100%; height:auto; border-radius:8px;
-      transition: transform .5s;
-    }
-    #projeler .card img:hover { transform: scale(1.05); }
+    .card:hover { transform: translateY(-5px); }
+    .card h3 { margin-top:1rem; }
+    .card p { color: var(--muted-gray); }
+
+    /* Footer */
     footer {
-      background:#f5f5f7; color:#3c3c3e;
-      text-align:center; padding:2rem 4%;
-      font-size:.9rem;
+      padding:2rem; background:#fff; color: var(--muted-gray);
+      text-align:center; font-size:0.875rem;
+      border-top:1px solid var(--muted-gray);
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">HANSA MİMARLIK</div>
-    <nav>
-      <a href="#hakkimizda">Hakkımızda</a>
-      <a href="#projeler">Projeler</a>
-      <a href="#hizmetler">Hizmetler</a>
-      <a href="#iletisim">İletişim</a>
-    </nav>
-  </header>
+  <nav>
+    <a href="#projeler">Projeler</a>
+    <a href="#hakkimizda">Hakkımızda</a>
+    <a href="#iletisim">İletişim</a>
+  </nav>
+
   <section class="hero">
-    <h1>Estetik… İşlev… Mükemmellik</h1>
-    <p>Hansa Mimarlık, her mekânda yaşam stilinizi yansıtan zarif ve fonksiyonel çözümler sunar.</p>
-    <button class="btn" onclick="location.href='#projeler'">Projelerimize Göz At</button>
-  </section>
-  <section id="hakkimizda">
-    <h2 class="section-title">Hakkımızda</h2>
-    <div class="grid">
-      <div class="card">
-        <p>Her projede sanatsal hassasiyet ile teknik detayları birleştiriyoruz. Kullanıcı odaklı, sürdürülebilir, zarif ve modern tasarımlar yaratıyoruz.</p>
-      </div>
+    <div>
+      <h1>Hansa Mimarlık ile Yaratıcı Mekânlar</h1>
+      <button>Projelerimizi İncele</button>
     </div>
   </section>
-  <section id="projeler">
-    <h2 class="section-title">Projeler</h2>
-    <div class="grid">
-      <div class="card">
-        <img src="villa.jpg" alt="Modern Villa"/>
-        <h3>Modern Villa</h3>
-        <p>Doğa ile uyumlu, cam yüzeylerle genişleyen modern yaşam alanı.</p>
-      </div>
-      <div class="card">
-        <img src="ofis.jpg" alt="Ofis Tasarımı"/>
-        <h3>Ofis Dönüşümü</h3>
-        <p>Şık, fonksiyonel ve kurumsal kimliğe uygun ofis tasarımı.</p>
-      </div>
-      <div class="card">
-        <img src="icmekan.jpg" alt="İç Mekan Sanatı"/>
-        <h3>İç Mekan Sanatı</h3>
-        <p>Sanat ve teknoloji buluşmasında interaktif yaşam alanları.</p>
-      </div>
+
+  <section class="features" id="projeler">
+    <div class="card">
+      <h3>Tasarım A</h3>
+      <p>Benzersiz mimari çözüm</p>
+    </div>
+    <div class="card">
+      <h3>Tasarım B</h3>
+      <p>Modern yaklaşım</p>
+    </div>
+    <div class="card">
+      <h3>Tasarım C</h3>
+      <p>Estetik ve fonksiyon</p>
+    </div>
+    <div class="card">
+      <h3>Tasarım D</h3>
+      <p>Sürdürülebilir yapı</p>
     </div>
   </section>
-  <section id="hizmetler">
-    <h2 class="section-title">Hizmetler</h2>
-    <div class="grid">
-      <div class="card"><h3>Mimari Tasarım</h3><p>Konut, ticari ve ofis mimarisi.</p></div>
-      <div class="card"><h3>İç Mekan Tasarımı</h3><p>Konforlu, estetik ve özgün yaşam alanları.</p></div>
-      <div class="card"><h3>Danışmanlık & Uygulama</h3><p>Başından sonuna profesyonel proje yönetimi.</p></div>
-    </div>
-  </section>
-  <section id="iletisim">
-    <h2 class="section-title">İletişim</h2>
-    <div class="grid">
-      <div class="card">
-        <p><strong>Adres:</strong> İstanbul, Türkiye</p>
-        <p><strong>Telefon:</strong> +90 555 123 45 67</p>
-        <p><strong>E‑Posta:</strong> info@hansamimarlik.com</p>
-      </div>
-    </div>
-  </section>
+
   <footer>
-    <p>&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
+    © 2025 Hansa Mimarlık • Tüm Hakları Saklıdır
   </footer>
+
+  <script>
+    // Basit smooth scroll
+    document.querySelectorAll('nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        document.getElementById(id).scrollIntoView({ behavior:'smooth' });
+      });
+    });
+  </script>
 </body>
 </html>
