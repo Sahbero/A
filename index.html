@@ -179,9 +179,9 @@
             color: var(--color-text-primary); /* Koyu metin rengi */
         }
 
-        /* Görsel yüklenirken arka plan */
-        .project-card.loading {
-            background-color: #e0e0e0; /* Açık gri yükleme arka planı */
+        /* Görsel yüklenirken arka plan (kaldırıldı, çünkü artık dinamik yükleme yok) */
+        /* .project-card.loading {
+            background-color: #e0e0e0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,8 +189,8 @@
             font-size: 0.9rem;
         }
         .project-card.loading img {
-            opacity: 0; /* Görsel yüklenene kadar gizle */
-        }
+            opacity: 0;
+        } */
     </style>
 </head>
 <body class="bg-white text-stone-900">
@@ -328,8 +328,8 @@
                     </p>
                 </div>
                 <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <a href="1.png" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading">
-                        <img data-prompt="Ultra-realistic architectural rendering of a modern minimalist villa, large glass windows, concrete and wood elements, surrounded by lush green landscape, golden hour lighting, high detail." alt="Modern Minimalist Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Modern Minimalist Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Modern Villa</h3>
@@ -337,8 +337,8 @@
                             </div>
                         </div>
                     </a>
-                    <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 100ms;">
-                        <img data-prompt="Ultra-realistic architectural rendering of a contemporary art gallery interior, spacious and bright with natural light, minimalist design, showcasing abstract sculptures, polished concrete floors, high ceilings." alt="Sanat Galerisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 100ms;">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Sanat Galerisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Sanat Galerisi</h3>
@@ -346,8 +346,8 @@
                             </div>
                         </div>
                     </a>
-                    <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 200ms;">
-                        <img data-prompt="Ultra-realistic architectural rendering of a high-tech office space, open-plan, sleek design, collaborative zones, modern furniture, glass partitions, city skyline view through large windows, vibrant but professional atmosphere." alt="Teknoloji Ofisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 200ms;">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Teknoloji Ofisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Teknoloji Ofisi</h3>
@@ -355,8 +355,8 @@
                             </div>
                         </div>
                     </a>
-                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 300ms;">
-                        <img data-prompt="Ultra-realistic aerial view of a vibrant modern city square, innovative urban design, public art installations, people interacting, trees, water features, sunny day, high detail." alt="Şehir Meydanı" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 300ms;">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Şehir Meydanı" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Şehir Meydanı</h3>
@@ -364,8 +364,8 @@
                             </div>
                         </div>
                     </a>
-                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 400ms;">
-                        <img data-prompt="Ultra-realistic architectural rendering of a restored historic mansion, blending traditional Ottoman elements with modern interior, intricate details, warm lighting, elegant furniture, high ceilings." alt="Tarihi Konak" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 400ms;">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Tarihi Konak" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Tarihi Konak</h3>
@@ -373,8 +373,8 @@
                             </div>
                         </div>
                     </a>
-                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 500ms;">
-                        <img data-prompt="Ultra-realistic architectural rendering of a stylish loft apartment interior, exposed brick walls, high ceilings, large industrial windows, industrial chic design, warm inviting atmosphere, modern furniture." alt="Loft Daire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 500ms;">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Loft Daire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Loft Daire</h3>
@@ -583,65 +583,64 @@
                 }
             });
 
-            // Imagen API entegrasyonu için fonksiyon
-            async function generateAndSetImage(imgElement) {
-                const promptText = imgElement.dataset.prompt;
-                const projectCard = imgElement.closest('.project-card');
+            // Imagen API entegrasyonu için fonksiyon (Kaldırıldı)
+            // async function generateAndSetImage(imgElement) {
+            //     const promptText = imgElement.dataset.prompt;
+            //     const projectCard = imgElement.closest('.project-card');
                 
-                projectCard.classList.add('loading'); // Yükleme durumunu göster
+            //     projectCard.classList.add('loading');
 
-                const payload = { instances: { prompt: promptText }, parameters: { "sampleCount": 1} };
-                const apiKey = ""; // Canvas ortamında otomatik olarak sağlanacaktır.
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
-                console.log("Imagen API URL:", apiUrl); // Hata ayıklaması için URL'yi konsola yazdır
+            //     const payload = { instances: { prompt: promptText }, parameters: { "sampleCount": 1} };
+            //     const apiKey = "";
+            //     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+            //     console.log("Imagen API URL:", apiUrl);
 
-                let retries = 0;
-                const maxRetries = 3;
-                const baseDelay = 1000; // 1 saniye
+            //     let retries = 0;
+            //     const maxRetries = 3;
+            //     const baseDelay = 1000;
 
-                while (retries < maxRetries) {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
+            //     while (retries < maxRetries) {
+            //         try {
+            //             const response = await fetch(apiUrl, {
+            //                 method: 'POST',
+            //                 headers: { 'Content-Type': 'application/json' },
+            //                 body: JSON.stringify(payload)
+            //             });
 
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+            //             if (!response.ok) {
+            //                 throw new Error(`HTTP error! status: ${response.status}`);
+            //             }
 
-                        const result = await response.json();
+            //             const result = await response.json();
                         
-                        if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
-                            const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-                            imgElement.src = imageUrl;
-                            imgElement.style.opacity = 1; // Görseli görünür yap
-                            break; // Başarılı, döngüden çık
-                        } else {
-                            throw new Error("API yanıt yapısı beklenmedik veya içerik eksik.");
-                        }
-                    } catch (error) {
-                        console.error("Görsel yüklenirken hata oluştu:", error);
-                        retries++;
-                        if (retries < maxRetries) {
-                            const delay = baseDelay * Math.pow(2, retries - 1);
-                            await new Promise(res => setTimeout(res, delay));
-                        } else {
-                            // Tüm denemeler başarısız olursa bir yer tutucu görseli göster
-                            imgElement.src = "https://placehold.co/600x600/cccccc/666666?text=Görsel+Yüklenemedi";
-                            imgElement.style.opacity = 1;
-                        }
-                    } finally {
-                        projectCard.classList.remove('loading'); // Yükleme durumunu gizle
-                    }
-                }
-            }
+            //             if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+            //                 const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+            //                 imgElement.src = imageUrl;
+            //                 imgElement.style.opacity = 1;
+            //                 break;
+            //             } else {
+            //                 throw new Error("API yanıt yapısı beklenmedik veya içerik eksik.");
+            //             }
+            //         } catch (error) {
+            //             console.error("Görsel yüklenirken hata oluştu:", error);
+            //             retries++;
+            //             if (retries < maxRetries) {
+            //                 const delay = baseDelay * Math.pow(2, retries - 1);
+            //                 await new Promise(res => setTimeout(res, delay));
+            //             } else {
+            //                 imgElement.src = "https://placehold.co/600x600/cccccc/666666?text=Görsel+Yüklenemedi";
+            //                 imgElement.style.opacity = 1;
+            //             }
+            //         } finally {
+            //             projectCard.classList.remove('loading');
+            //         }
+            //     }
+            // }
 
-            // Sayfa yüklendiğinde tüm proje görsellerini oluştur ve yükle
-            document.querySelectorAll('#projects .project-card img').forEach(img => {
-                generateAndSetImage(img);
-            });
+            // Sayfa yüklendiğinde tüm proje görsellerini oluştur ve yükle (Kaldırıldı)
+            // document.querySelectorAll('#projects .project-card img').forEach(img => {
+            //     generateAndSetImage(img);
+            // });
         });
     </script>
 
