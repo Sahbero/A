@@ -1,13 +1,149 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<title>
-  Ananın Amı Turizm
-</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Hansa Mimarlık - Modern ve Yenilikçi İç Mimarlık Çözümleri">
+  <title>Hansa Mimarlık</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'SF Pro Display', sans-serif;
+      background-color: #fff;
+      color: #1d1d1f;
+      line-height: 1.6;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 10%;
+      border-bottom: 1px solid #e5e5e5;
+      position: sticky;
+      top: 0;
+      background-color: white;
+      z-index: 1000;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #1d1d1f;
+      font-weight: 500;
+    }
+    nav a:hover {
+      color: #0071e3;
+    }
+    .hero {
+      text-align: center;
+      padding: 100px 10% 60px;
+      background: linear-gradient(to bottom, #000 0%, #111 100%);
+      color: #fff;
+    }
+    .hero h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .section {
+      padding: 80px 10%;
+      text-align: center;
+    }
+    .section h3 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .section p {
+      font-size: 1rem;
+      color: #4d4d4d;
+    }
+    footer {
+      background-color: #f5f5f7;
+      color: #6e6e73;
+      text-align: center;
+      padding: 40px 10%;
+      font-size: 0.9rem;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
-<body style="background-color:lightblue; font-family:helvetica;">
-  <h1>AL SANA BAŞLIK AMIN BEBESİ</h1>
-  <p>naber kana, sana bu metni yazabileceğimi ispat etmek için yazıyorum yani çokta ciddiye alma<br>bu da satır atlamasıydı</p>
-  <a href="http//sahbero.github.io/Deneme" style="color:yellow; background-color:lightpurple; padding:7px 7px;">AL BU DA BUTON KANKA</a>
+<body>
+  <header>
+    <h1>HANSA</h1>
+    <nav>
+      <ul>
+        <li><a href="#hakkimizda">Hakkımızda</a></li>
+        <li><a href="#projeler">Projeler</a></li>
+        <li><a href="#hizmetler">Hizmetler</a></li>
+        <li><a href="#iletisim">İletişim</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Yenilikçi İç Mekanlar Tasarlıyoruz</h2>
+    <p>Hansa Mimarlık olarak yaşam alanlarınıza değer katmak için estetik, işlevsel ve modern çözümler sunuyoruz.</p>
+  </section>
+
+  <section id="hakkimizda" class="section fade-in">
+    <h3>Hakkımızda</h3>
+    <p>Hansa Mimarlık, iç mimarlık ve uygulama alanında uzmanlaşmış, kullanıcı deneyimini merkeze alan yenilikçi projeler üretir.</p>
+  </section>
+
+  <section id="projeler" class="section fade-in">
+    <h3>Projelerimiz</h3>
+    <p>Konuttan ticari alana, iç mekanlardan dış mekana kadar birçok başarılı projeyi hayata geçirdik.</p>
+  </section>
+
+  <section id="hizmetler" class="section fade-in">
+    <h3>Hizmetler</h3>
+    <p>İç mimarlık, 3D modelleme, uygulama takibi, danışmanlık ve konsept geliştirme hizmetleri sunuyoruz.</p>
+  </section>
+
+  <section id="iletisim" class="section fade-in">
+    <h3>İletişim</h3>
+    <p>Bizimle iletişime geçmek için <a href="mailto:info@hansamimarlik.com">info@hansamimarlik.com</a> adresine yazabilirsiniz.</p>
+  </section>
+
+  <footer>
+    &copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
