@@ -1,14 +1,185 @@
 <!DOCTYPE html>
-<html>
-      <head>
-      <title>Hansa Mimarlık</title>
-    </head>
-  <body style="background-color:#448760; font-family:helvetica;">
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hansa Mimarlık</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Genel Ayarlar */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f5f5f5;
+      color: #2f2f2f;
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: #2f4f4f;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.85;
+    }
+
+    nav {
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      padding: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    nav a {
+      margin: 0 20px;
+      text-decoration: none;
+      color: #2f2f2f;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #3d9970;
+    }
+
+    .hero {
+      background: url('https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+      height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      flex-direction: column;
+    }
+
+    .hero h2 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    .content {
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .content h3 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #3d9970;
+    }
+
+    .content p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .cta {
+      text-align: center;
+      margin: 60px 0;
+    }
+
+    .cta a {
+      text-decoration: none;
+      background-color: #3d9970;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      transition: background-color 0.3s;
+    }
+
+    .cta a:hover {
+      background-color: #337f5c;
+    }
+
+    footer {
+      background-color: #2f4f4f;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .hero h2 {
+        font-size: 2rem;
+      }
+
+      nav {
+        flex-direction: column;
+      }
+
+      nav a {
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
     <h1>Hansa Mimarlık</h1>
-    <h1>Geleceğe Açılan Kapı...</h1>
-    <p>Hansa Mimarlık olarak sizi sizden daha iyi anlamaya çalışıyoruz<br>
-    Yaptığımız tüm çalışmalarda çağdaş dünya anlayışına, yenilikçi fikirlere ve ince detaylara özen gösteriyoruz<br>
-    Siz de yaşadığınız mekana değer katmak istiyorsanız bizimle iletişime geçebilirsiniz...</p>
-    <a href="https://sahbero.github.io/Deneme" style="color:orange; background-color:white; padding:15px 10px; text-decoration:none; border-radius:5px; display:inline-block;">BU BİR BUTONDUR!</a>
-  </body>
+    <p>Geleceğe Açılan Kapı</p>
+  </header>
+
+  <nav>
+    <a href="#">Ana Sayfa</a>
+    <a href="#">Projeler</a>
+    <a href="#">Hakkımızda</a>
+    <a href="#">İletişim</a>
+  </nav>
+
+  <section class="hero">
+    <h2>Yaşam Alanlarını Sanata Dönüştürüyoruz</h2>
+    <p>Mimari estetik, işlevsellik ve modern çizgilerle harmanlanmış, size özel yaşam alanları tasarlıyoruz.</p>
+  </section>
+
+  <section class="content">
+    <h3>Neden Hansa Mimarlık?</h3>
+    <p>Hansa Mimarlık olarak sizi sizden daha iyi anlamaya çalışıyoruz. Her projemizde çağdaş tasarım anlayışına, yenilikçi fikirlere ve detaylara verdiğimiz önemle öne çıkıyoruz.</p>
+    
+    <p>Yalnızca binalar değil, aynı zamanda yaşam tarzları tasarlıyoruz. Kullandığımız malzemelerden mekan kurgusuna kadar her adımda sürdürülebilirlik, zarafet ve işlevselliği bir araya getiriyoruz.</p>
+  </section>
+
+  <div class="cta">
+    <a href="https://sahbero.github.io/Deneme">Projelerimizi İnceleyin</a>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
+  </footer>
+
+</body>
 </html>
