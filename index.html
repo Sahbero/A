@@ -1,133 +1,649 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hansa Mimarlık</title>
-  <style>
-    /* Temel renk ve font ayarları (Apple Core Palette ve San Francisco fontu) */
-    :root {
-      --color-primary: #0066CC; /* Science Blue */
-      --color-dark: #1D1D1F;    /* Shark Black */
-      --color-light: #F5F5F7;   /* Athens Gray */
-      --color-white: #FFFFFF;  
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, system-ui, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      background-color: var(--color-white);
-      color: var(--color-dark);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    a { color: var(--color-primary); text-decoration: none; transition: opacity 0.3s ease; }
-    a:hover { opacity: 0.7; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hansa Mimarlık | Yenilikçi Mekanlar Yaratıyoruz</title>
+    <!-- Chosen Palette: Apple Inspired Neutral Tones -->
+    <!-- Application Structure Plan: A single-page, narrative-driven flow designed to guide the user seamlessly from an impactful introduction (Hero) through the firm's philosophy (About), services, showcased projects (Portfolio), to a clear call-to-action (Contact). This linear, storytelling structure was chosen over a complex dashboard to reflect the curated and high-end nature of an architecture firm. It allows the firm's work to unfold elegantly, using scroll-triggered animations to maintain engagement and focus attention on the high-quality visuals, which are central to an architecture portfolio. The structure prioritizes a journey of discovery for potential clients. -->
+    <!-- Visualization & Content Choices: Report Info: High-quality project visuals are paramount. -> Goal: Showcase architectural work compellingly. -> Viz/Presentation Method: Full-width image sections and a gridded portfolio. -> Interaction: Subtle scroll-triggered fade-in and slide-up animations, hover effects on project cards. -> Justification: This approach makes the architectural "product" the hero, mirroring Apple's product focus. The animations add a layer of sophistication and guide the user's eye without being distracting. -> Library/Method: Vanilla JavaScript and CSS Transitions/Animations. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-white: #FFFFFF;
+            --color-background: #F5F5F7;
+            --color-text-primary: #1D1D1F;
+            --color-text-secondary: #6E6E73;
+            --color-accent: #007AFF;
+            --font-primary: 'Inter', sans-serif;
+        }
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-white);
+            color: var(--color-text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .h1-clamp {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+        }
+        .h2-clamp {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+        }
+        .text-clamp {
+            font-size: clamp(1rem, 2.5vw, 1.125rem);
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--color-accent);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .btn-primary {
+            background-color: var(--color-accent);
+            color: var(--color-white);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background-color: var(--color-background);
+            color: var(--color-text-primary);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+        }
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);
+            opacity: 0.8;
+            transition: opacity 0.4s ease;
+        }
+        .project-card:hover::before {
+            opacity: 1;
+        }
+        .project-card-content {
+            transform: translateY(20px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+        .project-card:hover .project-card-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .hamburger-line {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .menu-open .line-1 {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .menu-open .line-2 {
+            opacity: 0;
+        }
+        .menu-open .line-3 {
+            transform: translateY(-8px) rotate(-45deg);
+        }
 
-    /* Navigasyon */
-    header {
-      position: sticky; top: 0;
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: blur(10px);
-      z-index: 100;
-      padding: 1rem 2rem;
-    }
-    nav ul { display: flex; gap: 2rem; list-style: none; }
-    nav ul li { font-weight: 500; }
+        /* Yeni Hero Bölümü Stilleri */
+        .hero-image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.05); /* Başlangıçta hafifçe büyütülmüş */
+            animation: subtleZoom 20s infinite alternate ease-in-out; /* Hafif zoom animasyonu */
+        }
 
-    /* Kahraman bölümü */
-    .hero {
-      position: relative;
-      height: 90vh;
-      background: url('hero.jpg') center/cover no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .hero h1 {
-      font-size: 4rem;
-      color: var(--color-white);
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      animation: fadeInDown 1s ease-out;
-    }
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+        @keyframes subtleZoom {
+            0% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.2) 100%); /* Daha hafif overlay */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .hero-content {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 1.5s forwards ease-out;
+            animation-delay: 0.5s;
+        }
+        @keyframes fadeInSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Hero metin rengini koyu yap */
+        #hero .hero-content h1,
+        #hero .hero-content p {
+            color: var(--color-text-primary); /* Koyu metin rengi */
+        }
 
-    /* Proje galerisi */
-    .projects {
-      padding: 4rem 2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-    .project {
-      position: relative;
-      overflow: hidden;
-    }
-    .project img {
-      width: 100%; display: block;
-      transition: transform 0.5s ease;
-    }
-    .project:hover img { transform: scale(1.05); }
-    .project .info {
-      position: absolute; bottom: 1rem; left: 1rem;
-      background: rgba(0,0,0,0.6); color: #fff;
-      padding: 0.5rem 1rem; border-radius: 0.25rem;
-      opacity: 0; transition: opacity 0.4s ease;
-    }
-    .project:hover .info { opacity: 1; }
-
-    /* Footer */
-    footer {
-      background: var(--color-light);
-      padding: 2rem;
-      text-align: center;
-      font-size: 0.9rem;
-      color: var(--color-dark);
-    }
-
-    /* Scroll ile görünürlük animasyonu */
-    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
-    .visible { opacity: 1; transform: translateY(0); }
-  </style>
+        /* Görsel yüklenirken arka plan */
+        .project-card.loading {
+            background-color: #e0e0e0; /* Açık gri yükleme arka planı */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6e6e73;
+            font-size: 0.9rem;
+        }
+        .project-card.loading img {
+            opacity: 0; /* Görsel yüklenene kadar gizle */
+        }
+    </style>
 </head>
-<body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="#hero">Ana Sayfa</a></li>
-        <li><a href="#projects">Projeler</a></li>
-        <li><a href="#contact">İletişim</a></li>
-      </ul>
-    </nav>
-  </header>
+<body class="bg-white text-stone-900">
 
-  <section id="hero" class="hero">
-    <h1>Hansa Mimarlık</h1>
-  </section>
+    <header id="header" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#hero" class="text-2xl font-bold tracking-tighter text-stone-900">Hansa Mimarlık</a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="nav-link text-sm font-medium text-stone-600 hover:text-blue-600">Hakkımızda</a>
+                <a href="#services" class="nav-link text-sm font-medium text-stone-600 hover:text-blue-600">Hizmetler</a>
+                <a href="#concept-generator" class="nav-link text-sm font-medium text-stone-600 hover:text-blue-600">Fikir Oluşturucu</a>
+                <a href="#projects" class="nav-link text-sm font-medium text-stone-600 hover:text-blue-600">Projeler</a>
+                <a href="#contact" class="nav-link text-sm font-medium text-stone-600 hover:text-blue-600">İletişim</a>
+            </div>
+            <div class="md:hidden">
+                <button id="menu-btn" class="z-50 block hamburger focus:outline-none">
+                    <span class="hamburger-line line-1 block w-6 h-0.5 bg-stone-900"></span>
+                    <span class="hamburger-line line-2 block w-6 h-0.5 bg-stone-900 mt-1.5"></span>
+                    <span class="hamburger-line line-3 block w-6 h-0.5 bg-stone-900 mt-1.5"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
 
-  <section id="projects" class="projects">
-    <div class="project fade-in"><img src="proj1.jpg" alt="Proje 1"><div class="info">Proje 1</div></div>
-    <div class="project fade-in"><img src="proj2.jpg" alt="Proje 2"><div class="info">Proje 2</div></div>
-    <div class="project fade-in"><img src="proj3.jpg" alt="Proje 3"><div class="info">Proje 3</div></div>
-    <div class="project fade-in"><img src="proj4.jpg" alt="Proje 4"><div class="info">Proje 4</div></div>
-  </section>
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-full bg-white z-40 md:hidden">
+        <div class="flex flex-col items-center justify-center h-full space-y-8">
+            <a href="#about" class="mobile-nav-link text-2xl font-semibold text-stone-800">Hakkımızda</a>
+            <a href="#services" class="mobile-nav-link text-2xl font-semibold text-stone-800">Hizmetler</a>
+            <a href="#concept-generator" class="mobile-nav-link text-2xl font-semibold text-stone-800">Fikir Oluşturucu</a>
+            <a href="#projects" class="mobile-nav-link text-2xl font-semibold text-stone-800">Projeler</a>
+            <a href="#contact" class="mobile-nav-link text-2xl font-semibold text-stone-800">İletişim</a>
+        </div>
+    </div>
 
-  <footer id="contact">
-    <p>&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
-    <p>İletişim: info@hansamimarlik.com | +90 212 123 45 67</p>
-  </footer>
+    <main>
+        <section id="hero" class="relative h-screen w-full flex items-center justify-center text-center">
+            <div class="hero-image-container">
+                <img src="https://placehold.co/1920x1080/F5F5F7/F5F5F7" alt="Modern Mimari Giriş" class="hero-image"> <!-- Nötr görsel, metinsiz -->
+                <div class="hero-overlay"></div>
+            </div>
+            <div class="hero-content relative z-10 p-8 rounded-lg">
+                <h1 class="h1-clamp font-extrabold leading-tight tracking-tighter">Mekana Anlam Katan Tasarımlar</h1>
+                <p class="text-clamp mt-4 max-w-2xl mx-auto font-light">Hansa Mimarlık olarak, estetik ve fonksiyonelliği birleştirerek geleceğin yaşam alanlarını bugünden tasarlıyoruz.</p>
+                <a href="#projects" class="btn-primary inline-block mt-8 px-8 py-3 rounded-full text-lg font-semibold">Projelerimizi Keşfedin</a>
+            </div>
+        </section>
 
-  <script>
-    // Scroll animasyonu için IntersectionObserver
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('visible');
-      });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-  </script>
+        <section id="about" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="fade-in-section max-w-4xl mx-auto text-center">
+                    <h2 class="h2-clamp font-bold tracking-tighter text-stone-800">Biz Kimiz?</h2>
+                    <p class="text-clamp mt-6 text-stone-600 leading-relaxed">
+                        Bu bölüm, Hansa Mimarlık'ın felsefesini ve yaklaşımını anlatır. Kullanıcılar burada firmanın kimliği, tasarım anlayışı ve mimariye bakış açısı hakkında bilgi edinirler. Minimalist ve net bir dille, firmanın sadece binalar değil, aynı zamanda sürdürülebilir ve insan odaklı deneyimler yarattığı vurgulanır. Bu bölüm, potansiyel müşterilerle bir güven bağı kurmanın ilk adımıdır.
+                    </p>
+                    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-12 text-left">
+                        <div class="fade-in-section" style="transition-delay: 100ms;">
+                            <h3 class="text-2xl font-semibold text-stone-800">Vizyonumuz</h3>
+                            <p class="mt-4 text-stone-600">Sınırları zorlayan, yenilikçi ve zamana meydan okuyan mimari çözümlerle dünyaya ilham vermek.</p>
+                        </div>
+                        <div class="fade-in-section" style="transition-delay: 200ms;">
+                            <h3 class="text-2xl font-semibold text-stone-800">Felsefemiz</h3>
+                            <p class="mt-4 text-stone-600">Her projenin kendine özgü ruhunu anlıyor, kullanıcı ihtiyaçları ve çevresel bağlam ile uyumlu tasarımlar yaratıyoruz.</p>
+                        </div>
+                        <div class="fade-in-section" style="transition-delay: 300ms;">
+                            <h3 class="text-2xl font-semibold text-stone-800">Yaklaşımımız</h3>
+                            <p class="mt-4 text-stone-600">Disiplinlerarası bir bakış açısıyla, projenin her aşamasında şeffaflık, iş birliği ve mükemmeliyetçilikle çalışıyoruz.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="py-20 md:py-32 bg-stone-50">
+            <div class="container mx-auto px-6">
+                <div class="fade-in-section max-w-4xl mx-auto text-center">
+                    <h2 class="h2-clamp font-bold tracking-tighter text-stone-800">Hizmetlerimiz</h2>
+                    <p class="text-clamp mt-6 text-stone-600 leading-relaxed">
+                        Hansa Mimarlık'ın sunduğu hizmetlerin detaylandırıldığı bu bölüm, firmanın uzmanlık alanlarını sergiler. Mimari tasarımdan iç mekan düzenlemesine, kentsel tasarımdan restorasyona kadar geniş bir yelpazede sunulan hizmetler, net ve anlaşılır bir şekilde listelenir. Her hizmet, kullanıcının ihtiyacına nasıl cevap verdiğini açıklayan kısa bir metinla desteklenir.
+                    </p>
+                </div>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="fade-in-section bg-white p-8 rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300">
+                        <h3 class="text-xl font-semibold text-stone-800">Mimari Tasarım</h3>
+                        <p class="mt-4 text-stone-600">Konut, ticari ve kamusal yapılar için özgün ve işlevsel mimari projeler geliştiriyoruz.</p>
+                    </div>
+                    <div class="fade-in-section bg-white p-8 rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300" style="transition-delay: 100ms;">
+                        <h3 class="text-xl font-semibold text-stone-800">İç Mimari</h3>
+                        <p class="mt-4 text-stone-600">Mekanların ruhunu yansıtan, estetik ve ergonomik iç mekan tasarımları sunuyoruz.</p>
+                    </div>
+                    <div class="fade-in-section bg-white p-8 rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300" style="transition-delay: 200ms;">
+                        <h3 class="text-xl font-semibold text-stone-800">Kentsel Tasarım</h3>
+                        <p class="mt-4 text-stone-600">Yaşanabilir şehirler ve kamusal alanlar için sürdürülebilir kentsel tasarım projeleri üretiyoruz.</p>
+                    </div>
+                    <div class="fade-in-section bg-white p-8 rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300" style="transition-delay: 300ms;">
+                        <h3 class="text-xl font-semibold text-stone-800">Restorasyon</h3>
+                        <p class="mt-4 text-stone-600">Tarihi yapıların özgün kimliğini koruyarak, modern ihtiyaçlara cevap verecek şekilde restore ediyoruz.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Yeni Gemini API destekli bölüm: Proje Fikirleri Oluşturucu -->
+        <section id="concept-generator" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="fade-in-section max-w-4xl mx-auto text-center">
+                    <h2 class="h2-clamp font-bold tracking-tighter text-stone-800">✨ Proje Fikirleri Oluşturucu</h2>
+                    <p class="text-clamp mt-6 text-stone-600 leading-relaxed">
+                        Hansa Mimarlık olarak hayalinizdeki projeyi şekillendirmenize yardımcı oluyoruz. Aşağıya projenizle ilgili kısa bir açıklama girin, size özel bir tasarım konsepti oluşturalım. Bu özellik, Gemini API'nin gücüyle anında ilham verici fikirler sunar.
+                    </p>
+                    <div class="mt-12 text-left bg-stone-50 p-8 md:p-12 rounded-xl shadow-lg max-w-2xl mx-auto">
+                        <label for="project-description" class="block text-sm font-medium text-stone-600 mb-2">Proje Fikrinizi Açıklayın:</label>
+                        <textarea id="project-description" rows="4" class="w-full p-3 bg-white rounded-md border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="Örn: Yeşil alanları bol, modern ve sürdürülebilir bir aile konutu tasarlamak istiyorum."></textarea>
+                        <div class="mt-6 text-center">
+                            <button id="generate-concept-btn" class="btn-primary px-10 py-3 rounded-full text-lg font-semibold">✨ Konsept Oluştur</button>
+                        </div>
+                        <div id="loading-indicator" class="mt-6 text-center text-stone-600 hidden">Konsept oluşturuluyor...</div>
+                        <div id="concept-output" class="mt-8 p-6 bg-white rounded-md border border-stone-200 hidden">
+                            <h3 class="text-xl font-semibold text-stone-800 mb-4">Oluşturulan Konsept:</h3>
+                            <p class="text-stone-700 leading-relaxed" id="generated-text"></p>
+                        </div>
+                        <div id="error-message" class="mt-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md hidden">
+                            Bir hata oluştu. Lütfen tekrar deneyin.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="py-20 md:py-32 bg-stone-50">
+            <div class="container mx-auto px-6">
+                <div class="fade-in-section max-w-4xl mx-auto text-center">
+                    <h2 class="h2-clamp font-bold tracking-tighter text-stone-800">Öne Çıkan Projeler</h2>
+                    <p class="text-clamp mt-6 text-stone-600 leading-relaxed">
+                        Bu bölüm, web sitesinin kalbidir. Hansa Mimarlık'ın en iyi çalışmalarını sergileyen görsel odaklı bir portföy sunar. Yüksek çözünürlüklü görseller ve etkileşimli kartlar, kullanıcıların projeleri detaylı bir şekilde incelemesini sağlar. Her proje kartı, üzerine gelindiğinde proje adı ve kategorisi gibi temel bilgileri göstererek temiz ve minimalist bir sunum sağlar. Bu, firmanın yeteneklerini ve estetik anlayışını en etkili şekilde sergileme yöntemidir.
+                    </p>
+                </div>
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading">
+                        <img data-prompt="Ultra-realistic architectural rendering of a modern minimalist villa, large glass windows, concrete and wood elements, surrounded by lush green landscape, golden hour lighting, high detail." alt="Modern Minimalist Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Modern Villa</h3>
+                                <p class="text-sm opacity-80">Konut</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 100ms;">
+                        <img data-prompt="Ultra-realistic architectural rendering of a contemporary art gallery interior, spacious and bright with natural light, minimalist design, showcasing abstract sculptures, polished concrete floors, high ceilings." alt="Sanat Galerisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Sanat Galerisi</h3>
+                                <p class="text-sm opacity-80">Kültürel</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 200ms;">
+                        <img data-prompt="Ultra-realistic architectural rendering of a high-tech office space, open-plan, sleek design, collaborative zones, modern furniture, glass partitions, city skyline view through large windows, vibrant but professional atmosphere." alt="Teknoloji Ofisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Teknoloji Ofisi</h3>
+                                <p class="text-sm opacity-80">Ticari</p>
+                            </div>
+                        </div>
+                    </a>
+                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 300ms;">
+                        <img data-prompt="Ultra-realistic aerial view of a vibrant modern city square, innovative urban design, public art installations, people interacting, trees, water features, sunny day, high detail." alt="Şehir Meydanı" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Şehir Meydanı</h3>
+                                <p class="text-sm opacity-80">Kentsel Tasarım</p>
+                            </div>
+                        </div>
+                    </a>
+                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 400ms;">
+                        <img data-prompt="Ultra-realistic architectural rendering of a restored historic mansion, blending traditional Ottoman elements with modern interior, intricate details, warm lighting, elegant furniture, high ceilings." alt="Tarihi Konak" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Tarihi Konak</h3>
+                                <p class="text-sm opacity-80">Restorasyon</p>
+                            </div>
+                        </div>
+                    </a>
+                     <a href="#" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1 loading" style="transition-delay: 500ms;">
+                        <img data-prompt="Ultra-realistic architectural rendering of a stylish loft apartment interior, exposed brick walls, high ceilings, large industrial windows, industrial chic design, warm inviting atmosphere, modern furniture." alt="Loft Daire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
+                            <div class="project-card-content">
+                                <h3 class="text-2xl font-bold">Loft Daire</h3>
+                                <p class="text-sm opacity-80">İç Mimari</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="fade-in-section max-w-4xl mx-auto text-center">
+                    <h2 class="h2-clamp font-bold tracking-tighter text-stone-800">Hayalinizdeki Projeyi Birlikte Gerçekleştirelim</h2>
+                    <p class="text-clamp mt-6 text-stone-600 leading-relaxed">
+                        Bu son bölüm, kullanıcıları harekete geçmeye davet eder. Net bir başlık ve basit bir iletişim formu, potansiyel müşterilerin kolayca ulaşmasını sağlar. İletişim bilgileri (adres, telefon, e-posta) açıkça belirtilir. Bu bölüm, kullanıcı yolculuğunu mantıksal bir sonuca ulaştırarak, ilham alan bir ziyaretçiyi potansiyel bir iş ortağına dönüştürme fırsatı sunar.
+                    </p>
+                    <div class="mt-12 text-left bg-stone-50 p-8 md:p-12 rounded-xl shadow-lg max-w-2xl mx-auto">
+                        <form>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-stone-600 mb-2">Adınız Soyadınız</label>
+                                    <input type="text" id="name" class="w-full p-3 bg-stone-50 rounded-md border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-stone-600 mb-2">E-posta Adresiniz</label>
+                                    <input type="email" id="email" class="w-full p-3 bg-stone-50 rounded-md border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <label for="message" class="block text-sm font-medium text-stone-600 mb-2">Mesajınız</label>
+                                <textarea id="message" rows="5" class="w-full p-3 bg-stone-50 rounded-md border border-stone-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></textarea>
+                            </div>
+                            <div class="mt-8 text-center">
+                                <button type="submit" class="btn-primary px-10 py-3 rounded-full text-lg font-semibold">Mesaj Gönder</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-900 text-white">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold">Hansa Mimarlık</h3>
+                    <p class="mt-4 text-stone-400 text-sm">Yenilikçi mekanlar, zamansız tasarımlar.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold">Hızlı Bağlantılar</h4>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#about" class="text-stone-400 hover:text-white transition-colors duration-300 text-sm">Hakkımızda</a></li>
+                        <li><a href="#services" class="text-stone-400 hover:text-white transition-colors duration-300 text-sm">Hizmetler</a></li>
+                        <li><a href="#concept-generator" class="text-stone-400 hover:text-white transition-colors duration-300 text-sm">Fikir Oluşturucu</a></li>
+                        <li><a href="#projects" class="text-stone-400 hover:text-white transition-colors duration-300 text-sm">Projeler</a></li>
+                        <li><a href="#contact" class="text-stone-400 hover:text-white transition-colors duration-300 text-sm">İletişim</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold">Bize Ulaşın</h4>
+                    <ul class="mt-4 space-y-2 text-sm text-stone-400">
+                        <li>Adres: Mimarlık Sk. No:1, İstanbul</li>
+                        <li>Telefon: +90 212 123 45 67</li>
+                        <li>E-posta: info@hansamimarlik.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-stone-800 pt-8 text-center text-stone-500 text-sm">
+                <p>&copy; 2025 Hansa Mimarlık. Tüm hakları saklıdır.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const header = document.getElementById('header');
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            const projectDescriptionInput = document.getElementById('project-description');
+            const generateConceptBtn = document.getElementById('generate-concept-btn');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const conceptOutput = document.getElementById('concept-output');
+            const generatedText = document.getElementById('generated-text');
+            const errorMessage = document.getElementById('error-message');
+
+            function toggleMenu() {
+                menuBtn.classList.toggle('menu-open');
+                mobileMenu.classList.toggle('open');
+                document.body.classList.toggle('overflow-hidden');
+            }
+
+            menuBtn.addEventListener('click', toggleMenu);
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', toggleMenu);
+            });
+
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 50) {
+                    header.classList.add('shadow-md');
+                } else {
+                    header.classList.remove('shadow-md');
+                }
+            });
+
+            const faders = document.querySelectorAll('.fade-in-section');
+            const appearOptions = {
+                threshold: 0.2,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('is-visible');
+                        appearOnScroll.unobserve(entry.target);
+                    }
+                });
+            }, appearOptions);
+
+            faders.forEach(fader => {
+                appearOnScroll.observe(fader);
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    if(this.getAttribute('href').length > 1) {
+                        e.preventDefault();
+                        document.querySelector(this.getAttribute('href')).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Gemini API entegrasyonu için fonksiyon
+            async function generateDesignConcept(promptText) {
+                loadingIndicator.classList.remove('hidden');
+                conceptOutput.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                generatedText.textContent = '';
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: `Hansa Mimarlık olarak, '${promptText}' projesi için aşağıdaki tasarım konseptini öneriyoruz. Anahtar kelimeler: estetik, fonksiyonellik, sürdürülebilirlik, yenilikçilik, modern mimari, kullanıcı deneyimi. Lütfen 3-4 cümlelik kısa, ilham verici ve profesyonel bir konsept oluştur.` }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas ortamında otomatik olarak sağlanacaktır.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                console.log("Gemini API URL:", apiUrl); // Hata ayıklaması için URL'yi konsola yazdır
+
+                let retries = 0;
+                const maxRetries = 3;
+                const baseDelay = 1000; // 1 saniye
+
+                while (retries < maxRetries) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            const text = result.candidates[0].content.parts[0].text;
+                            generatedText.textContent = text;
+                            conceptOutput.classList.remove('hidden');
+                            break; // Başarılı, döngüden çık
+                        } else {
+                            throw new Error("API yanıt yapısı beklenmedik veya içerik eksik.");
+                        }
+                    } catch (error) {
+                        console.error("API çağrısı sırasında hata oluştu:", error);
+                        retries++;
+                        if (retries < maxRetries) {
+                            const delay = baseDelay * Math.pow(2, retries - 1);
+                            await new Promise(res => setTimeout(res, delay));
+                        } else {
+                            errorMessage.classList.remove('hidden');
+                        }
+                    } finally {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                }
+            }
+
+            generateConceptBtn.addEventListener('click', function() {
+                const description = projectDescriptionInput.value.trim();
+                if (description) {
+                    generateDesignConcept(description);
+                } else {
+                    errorMessage.textContent = "Lütfen bir proje açıklaması girin.";
+                    errorMessage.classList.remove('hidden');
+                    conceptOutput.classList.add('hidden');
+                }
+            });
+
+            // Imagen API entegrasyonu için fonksiyon
+            async function generateAndSetImage(imgElement) {
+                const promptText = imgElement.dataset.prompt;
+                const projectCard = imgElement.closest('.project-card');
+                
+                projectCard.classList.add('loading'); // Yükleme durumunu göster
+
+                const payload = { instances: { prompt: promptText }, parameters: { "sampleCount": 1} };
+                const apiKey = ""; // Canvas ortamında otomatik olarak sağlanacaktır.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                console.log("Imagen API URL:", apiUrl); // Hata ayıklaması için URL'yi konsola yazdır
+
+                let retries = 0;
+                const maxRetries = 3;
+                const baseDelay = 1000; // 1 saniye
+
+                while (retries < maxRetries) {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const result = await response.json();
+                        
+                        if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                            const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                            imgElement.src = imageUrl;
+                            imgElement.style.opacity = 1; // Görseli görünür yap
+                            break; // Başarılı, döngüden çık
+                        } else {
+                            throw new Error("API yanıt yapısı beklenmedik veya içerik eksik.");
+                        }
+                    } catch (error) {
+                        console.error("Görsel yüklenirken hata oluştu:", error);
+                        retries++;
+                        if (retries < maxRetries) {
+                            const delay = baseDelay * Math.pow(2, retries - 1);
+                            await new Promise(res => setTimeout(res, delay));
+                        } else {
+                            // Tüm denemeler başarısız olursa bir yer tutucu görseli göster
+                            imgElement.src = "https://placehold.co/600x600/cccccc/666666?text=Görsel+Yüklenemedi";
+                            imgElement.style.opacity = 1;
+                        }
+                    } finally {
+                        projectCard.classList.remove('loading'); // Yükleme durumunu gizle
+                    }
+                }
+            }
+
+            // Sayfa yüklendiğinde tüm proje görsellerini oluştur ve yükle
+            document.querySelectorAll('#projects .project-card img').forEach(img => {
+                generateAndSetImage(img);
+            });
+        });
+    </script>
+
 </body>
 </html>
