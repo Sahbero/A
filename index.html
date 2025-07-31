@@ -160,6 +160,9 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            /* Buzlu cam efekti eklendi */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Webkit tarayıcılar için */
         }
         .hero-content {
             opacity: 0;
@@ -228,7 +231,7 @@
     <main>
         <section id="hero" class="relative h-screen w-full flex items-center justify-center text-center">
             <div class="hero-image-container">
-                <img src="https://placehold.co/1920x1080/F5F5F7/F5F5F7" alt="Modern Mimari Giriş" class="hero-image"> <!-- Nötr görsel, metinsiz -->
+                <img src="8.png" alt="Modern Mimari İç Mekan" class="hero-image"> <!-- Beyaz modern iç mekan görseli -->
                 <div class="hero-overlay"></div>
             </div>
             <div class="hero-content relative z-10 p-8 rounded-lg">
@@ -329,7 +332,7 @@
                 </div>
                 <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1">
-                        <img src="5.png" alt="Modern Minimalist Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Modern Minimalist Villa" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Modern Villa</h3>
@@ -338,7 +341,7 @@
                         </div>
                     </a>
                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 100ms;">
-                        <img src="1.png" alt="Sanat Galerisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Sanat Galerisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Sanat Galerisi</h3>
@@ -347,7 +350,7 @@
                         </div>
                     </a>
                     <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 200ms;">
-                        <img src="6.png" alt="Teknoloji Ofisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Teknoloji Ofisi" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Teknoloji Ofisi</h3>
@@ -356,7 +359,7 @@
                         </div>
                     </a>
                      <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 300ms;">
-                        <img src="2.png" alt="Şehir Meydanı" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Şehir Meydanı" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Şehir Meydanı</h3>
@@ -365,7 +368,7 @@
                         </div>
                     </a>
                      <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 400ms;">
-                        <img src="7.png" alt="Tarihi Konak" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Tarihi Konak" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Tarihi Konak</h3>
@@ -374,7 +377,7 @@
                         </div>
                     </a>
                      <a href="javascript:void(0)" class="fade-in-section project-card group relative block overflow-hidden rounded-xl aspect-w-1 aspect-h-1" style="transition-delay: 500ms;">
-                        <img src="3.png" alt="Loft Daire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://placehold.co/600x600/a3a3a3/ffffff" alt="Loft Daire" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                          <div class="absolute bottom-0 left-0 p-6 w-full text-white">
                             <div class="project-card-content">
                                 <h3 class="text-2xl font-bold">Loft Daire</h3>
@@ -582,65 +585,6 @@
                     conceptOutput.classList.add('hidden');
                 }
             });
-
-            // Imagen API entegrasyonu için fonksiyon (Kaldırıldı)
-            // async function generateAndSetImage(imgElement) {
-            //     const promptText = imgElement.dataset.prompt;
-            //     const projectCard = imgElement.closest('.project-card');
-                
-            //     projectCard.classList.add('loading');
-
-            //     const payload = { instances: { prompt: promptText }, parameters: { "sampleCount": 1} };
-            //     const apiKey = "";
-            //     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
-            //     console.log("Imagen API URL:", apiUrl);
-
-            //     let retries = 0;
-            //     const maxRetries = 3;
-            //     const baseDelay = 1000;
-
-            //     while (retries < maxRetries) {
-            //         try {
-            //             const response = await fetch(apiUrl, {
-            //                 method: 'POST',
-            //                 headers: { 'Content-Type': 'application/json' },
-            //                 body: JSON.stringify(payload)
-            //             });
-
-            //             if (!response.ok) {
-            //                 throw new Error(`HTTP error! status: ${response.status}`);
-            //             }
-
-            //             const result = await response.json();
-                        
-            //             if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
-            //                 const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-            //                 imgElement.src = imageUrl;
-            //                 imgElement.style.opacity = 1;
-            //                 break;
-            //             } else {
-            //                 throw new Error("API yanıt yapısı beklenmedik veya içerik eksik.");
-            //             }
-            //         } catch (error) {
-            //             console.error("Görsel yüklenirken hata oluştu:", error);
-            //             retries++;
-            //             if (retries < maxRetries) {
-            //                 const delay = baseDelay * Math.pow(2, retries - 1);
-            //                 await new Promise(res => setTimeout(res, delay));
-            //             } else {
-            //                 imgElement.src = "https://placehold.co/600x600/cccccc/666666?text=Görsel+Yüklenemedi";
-            //                 imgElement.style.opacity = 1;
-            //             }
-            //         } finally {
-            //             projectCard.classList.remove('loading');
-            //         }
-            //     }
-            // }
-
-            // Sayfa yüklendiğinde tüm proje görsellerini oluştur ve yükle (Kaldırıldı)
-            // document.querySelectorAll('#projects .project-card img').forEach(img => {
-            //     generateAndSetImage(img);
-            // });
         });
     </script>
 
