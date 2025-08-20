@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>HALKA — Kalp & Güvenli Alan</title>
+<title>HALKA — Müzik & Güvenli Alan Düzenlemesi</title>
 <style>
   :root{
     --bg:#0e0f14;
@@ -38,6 +38,16 @@
     box-shadow:0 8px 20px var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.04);cursor:pointer;pointer-events:auto;
   }
   #barRing{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);pointer-events:none}
+
+  /* Müzik butonu - sağ üst köşe */
+  #musicUI{position:fixed;top:12px;right:12px;width:44px;height:44px;z-index:50;pointer-events:none}
+  #musicBtn{
+    position:absolute;inset:0;margin:0;border:0;border-radius:50%;background:#2b2f38;color:var(--ink);font-weight:700;font-size:16px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 8px 20px rgba(0,0,0,0.45);
+    transition:background .18s, transform .06s;
+  }
+  #musicBtn.playing{background:#2ee66a;color:#06220b;}
+  #musicBtn:active{transform:translateY(1px)}
 </style>
 </head>
 <body>
@@ -76,6 +86,11 @@
   <canvas id="barRing"></canvas>
 </div>
 
+<!-- Müzik butonu (sağ üst) -->
+<div id="musicUI" aria-hidden="false">
+  <button id="musicBtn" title="Müzik Aç / Kapat">♪</button>
+</div>
+
 <script>
 (() => {
   'use strict';
@@ -100,7 +115,7 @@
   addEventListener('resize', resize, { passive: true });
   resize();
 
-  /* ---------- audio (light) ---------- */
+  /* ---------- audio (light beeps) ---------- */
   const AC = window.AudioContext || window.webkitAudioContext;
   const audio = new AC();
   let muted = false;
@@ -145,6 +160,8 @@
   }
   sizeRing(); addEventListener('resize', sizeRing, { passive: true });
 
+  const musicBtn = document.getElementById('musicBtn');
+
   const LS_KEY = 'HALKA_BEST';
   let bestScore = +(localStorage.getItem(LS_KEY) || 0);
   bestEl.textContent = bestScore.toLocaleString('tr-TR');
@@ -161,6 +178,7 @@
   };
 
   const params = {
+    // initial safe radius preserved
     safeRadius: Math.min(world.w(), world.h()) * 0.42,
     safeShrinkPerSec: 8 * dpr,
     outDPS: 14,
@@ -170,15 +188,15 @@
     enemyRamp: 0
   };
 
-  /* ---------- koruyucu bariyer (yeni davranış) ---------- */
+  /* ---------- koruyucu bariyer ---------- */
   let killsSinceLastActivation = 0;
-  let barrierAutoReady = false;      // hazır olduğunda true (10 kill sonrası)
-  let barrierAutoActive = false;     // aktif olduğunda true
-  const barrierAutoDuration = 5.0;   // 5 saniye
+  let barrierAutoReady = false;
+  let barrierAutoActive = false;
+  const barrierAutoDuration = 5.0;
   let barrierAutoTimer = 0;
   const barrierRadius = 58 * dpr;
 
-  /* ---------- yer-bariyeri (orijinal mekanik korunur) ---------- */
+  /* ---------- yer-bariyeri ---------- */
   let barrierRot = 0; const barriers = []; let barrierIdSeq = 1;
   const barrierHPDrain = 2;
   const barrierCD = { cd: 0, cdMax: 5.0 };
@@ -198,9 +216,9 @@
     barrierCD.cd = barrierCD.cdMax;
   }
 
-  /* ---------- GEREKLİ DÜZELTME: dış alandan gelen hasar için "tolerans" ---------- */
+  /* ---------- dış alan için tolerans ---------- */
   let outsideTimer = 0;
-  const OUTSIDE_GRACE = 0.25; // saniye tolerans
+  const OUTSIDE_GRACE = 0.25;
 
   /* ---------- Hearts & total kills ---------- */
   let totalKills = 0;
@@ -251,7 +269,7 @@
     else if (state === State.PAUSE) { state = State.PLAY; menuEl.style.display = 'none'; }
   });
 
-  /* ---------- buton: koruyucu bariyeri aktive etme (sadece hazırsa) ---------- */
+  /* ---------- buton: koruyucu bariyeri aktive etme ---------- */
   barBtn.addEventListener('click', () => {
     if (barrierAutoReady && !barrierAutoActive) {
       barrierAutoActive = true;
@@ -311,7 +329,9 @@
     if (state !== State.PLAY) return;
 
     // spawn & difficulty
-    params.safeRadius = Math.max(50 * dpr, params.safeRadius - params.safeShrinkPerSec * dt);
+    // ---------- DEĞİŞTİRİLDİ: en küçük safeRadius artık 2x (100*dpr) ----------
+    params.safeRadius = Math.max(100 * dpr, params.safeRadius - params.safeShrinkPerSec * dt);
+    // ---------------------------------------------------------------------
     params.enemyRamp += dt;
     params.enemySpawn += dt * params.enemySpawnRate * (1 + params.enemyRamp * 0.01);
     while (params.enemySpawn > 1) { params.enemySpawn -= 1; spawnEnemy(); }
@@ -356,7 +376,7 @@
     player.x = clamp(player.x + player.vx, 10, world.w() - 10);
     player.y = clamp(player.y + player.vy, 10, world.h() - 10);
 
-    // ---------- DÜZELTİLMİŞ KISIM: dış alan hasarı (toleranslı) ----------
+    // dış alan hasarı (toleranslı)
     const dToCenter = dist(player.x, player.y, world.cx(), world.cy());
     if (dToCenter > params.safeRadius) {
       outsideTimer += dt;
@@ -366,7 +386,6 @@
     } else {
       outsideTimer = 0;
     }
-    // ---------------------------------------------------------------------
 
     // mermiler
     for (let i = bullets.length - 1; i >= 0; i--) {
@@ -431,7 +450,6 @@
     for (let i = hearts.length - 1; i >= 0; i--) {
       const h = hearts[i];
       h.timer -= dt;
-      // çarpışma kontrolü: kalbe dokunursa canı fullle
       if (dist(player.x, player.y, h.x, h.y) <= player.r + h.r) {
         player.hp = player.hpMax;
         sHeal();
@@ -473,7 +491,7 @@
     // Particles
     for (let k = 0; k < 6; k++) particles.push({ x: e.x + rand(-6, 6), y: e.y + rand(-6, 6), life: .4, color: getCSS('--acc4') });
 
-    // sayı sayaçları
+    // sayaçlar
     killsSinceLastActivation++;
     totalKills++;
 
@@ -527,10 +545,9 @@
       ctx.font = `${22 * dpr}px serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      // hafif parlayan alpha ile göster
       const alpha = Math.max(0.25, Math.min(1, h.timer / 10));
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = getCSS('--acc4');
+      ctx.fillStyle = getCSS('--acc1');
       ctx.fillText('❤', h.x, h.y + (2 * dpr));
       ctx.globalAlpha = 1;
       ctx.restore();
@@ -606,6 +623,84 @@
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
+
+  /* ---------- MÜZİK: WebAudio ile hafif ambient pad oluşturma ---------- */
+  let musicPlaying = false;
+  let musicNodes = null; // { osc1, osc2, filter, gain, lfo, lfoGain }
+  function startMusic() {
+    if (musicPlaying) return;
+    audio.resume();
+    const t0 = audio.currentTime;
+    // temizle eski varsa
+    if (musicNodes) {
+      try { stopMusic(true); } catch(e){} // zorunlu temizleme
+    }
+    const osc1 = audio.createOscillator();
+    const osc2 = audio.createOscillator();
+    const filter = audio.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = 800;
+    const musicGain = audio.createGain(); musicGain.gain.value = 0;
+    const lfo = audio.createOscillator();
+    const lfoGain = audio.createGain();
+    lfo.frequency.value = 0.06; // yavaş modülasyon
+    lfoGain.gain.value = 220; // cutoff mod amount
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+
+    osc1.type = 'sine'; osc1.frequency.value = 110;
+    osc2.type = 'sine'; osc2.frequency.value = 220;
+    osc2.detune.value = 6;
+
+    // Hafif stereo detune oluşturmak için küçük delays (subtle) - keep simple
+    osc1.connect(filter); osc2.connect(filter);
+    filter.connect(musicGain); musicGain.connect(audio.destination);
+
+    osc1.start(t0); osc2.start(t0);
+    lfo.start(t0);
+
+    // fade-in düşük volüm
+    musicGain.gain.setValueAtTime(0, t0);
+    musicGain.gain.linearRampToValueAtTime(0.035, t0 + 2.2);
+
+    musicNodes = { osc1, osc2, filter, gain: musicGain, lfo, lfoGain };
+
+    musicPlaying = true;
+    musicBtn.classList.add('playing');
+  }
+  function stopMusic(noFadeImmediate = false) {
+    if (!musicPlaying && !musicNodes) return;
+    const t0 = audio.currentTime;
+    if (musicNodes && !noFadeImmediate) {
+      const g = musicNodes.gain;
+      g.gain.cancelScheduledValues(t0);
+      g.gain.setValueAtTime(g.gain.value, t0);
+      g.gain.linearRampToValueAtTime(0, t0 + 1.2);
+      setTimeout(() => {
+        try {
+          musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop();
+          musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect();
+          musicNodes.filter.disconnect(); musicNodes.gain.disconnect();
+        } catch (e) {}
+        musicNodes = null;
+      }, 1300);
+    } else {
+      // immediate stop
+      try {
+        musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop();
+        musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect();
+        musicNodes.filter.disconnect(); musicNodes.gain.disconnect();
+      } catch (e) {}
+      musicNodes = null;
+    }
+    musicPlaying = false;
+    musicBtn.classList.remove('playing');
+  }
+
+  musicBtn.addEventListener('click', (ev) => {
+    // ensure audio context resumed by user-gesture
+    audio.resume();
+    if (musicPlaying) stopMusic();
+    else startMusic();
+  });
 
   /* ---------- diğer ---------- */
   addEventListener('visibilitychange', () => { if (document.hidden && state === State.PLAY) { state = State.PAUSE; menuEl.style.display = ''; } });
