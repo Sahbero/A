@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>HALKA — Müzik & Güvenli Alan Düzenlemesi</title>
+<title>HALKA — Müzik Kaynak Değiştirme & Ses Kontrolü</title>
 <style>
   :root{
     --bg:#0e0f14;
@@ -40,14 +40,23 @@
   #barRing{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);pointer-events:none}
 
   /* Müzik butonu - sağ üst köşe */
-  #musicUI{position:fixed;top:12px;right:12px;width:44px;height:44px;z-index:50;pointer-events:none}
+  #musicUI{position:fixed;top:12px;right:12px;width:140px;height:auto;z-index:50;pointer-events:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
   #musicBtn{
-    position:absolute;inset:0;margin:0;border:0;border-radius:50%;background:#2b2f38;color:var(--ink);font-weight:700;font-size:16px;
+    width:44px;height:44px;border-radius:50%;border:0;background:#2b2f38;color:var(--ink);font-weight:700;font-size:16px;
     display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;box-shadow:0 8px 20px rgba(0,0,0,0.45);
     transition:background .18s, transform .06s;
   }
   #musicBtn.playing{background:#2ee66a;color:#06220b;}
   #musicBtn:active{transform:translateY(1px)}
+
+  /* volume slider */
+  #musicControls{pointer-events:auto;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.02);padding:6px;border-radius:8px}
+  #musicVol{width:88px}
+
+  /* source info & change */
+  #musicSource{font-size:12px;color:var(--ink-dim);opacity:0.95}
+  #setMusicUrlBtn{appearance:none;border:0;background:transparent;color:var(--acc2);cursor:pointer;padding:4px;border-radius:6px;font-size:12px}
+  #setMusicUrlBtn:hover{background:rgba(255,255,255,0.02)}
 </style>
 </head>
 <body>
@@ -86,14 +95,35 @@
   <canvas id="barRing"></canvas>
 </div>
 
-<!-- Müzik butonu (sağ üst) -->
+<!-- Müzik butonu (sağ üst) + volume + kaynak gösterimi -->
 <div id="musicUI" aria-hidden="false">
-  <button id="musicBtn" title="Müzik Aç / Kapat">♪</button>
+  <div id="musicControls" style="pointer-events:auto">
+    <button id="musicBtn" title="Müzik Aç / Kapat">♪</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <input id="musicVol" type="range" min="0" max="1" step="0.01" value="0.035" aria-label="Müzik Ses Seviyesi">
+      <div id="musicSource">Kaynak: <span id="musicSrcText">Yerel synthesizer</span> <button id="setMusicUrlBtn" title="GitHub/raw URL girerek müzik değiştir">Değiştir</button></div>
+    </div>
+  </div>
 </div>
 
 <script>
+/*
+Kısa kullanım notu (kod içinde):
+- Harici bir müzik kullanmak isterseniz iki yöntem var:
+  1) Kodda EXTERNAL_MUSIC_URL değişkenine raw GitHub URL'nizi yapıştırın.
+     Örnek: https://raw.githubusercontent.com/USERNAME/REPO/BRANCH/path/to/music.mp3
+  2) Oyun çalışırken sağ üstteki "Değiştir" butonuna tıklayıp URL yapıştırın.
+- Ses seviyesi sağdaki kaydırgaktan ayarlanır ve tarayıcıda yerel olarak saklanır.
+- Eğer harici URL boş bırakılır veya çalışmazsa, kod otomatik olarak önceki synth (yerel) fallback'ini kullanır.
+*/
+
 (() => {
   'use strict';
+
+  /* ---------- AYAR: dış kaynak URL (buraya raw.githubusercontent.com gibi URL yapıştırabilirsiniz) ---------- */
+  // Örnek (kaldırın ya da kendi URL'nizle değiştirin):
+  const EXTERNAL_MUSIC_URL = localStorage.getItem('HALKA_MUSIC_URL') || ''; // boş = synth (varsayılan)
+  // -----------------------------------------------------------------------------------------------------------
 
   /* ---------- yardımcılar ---------- */
   const rand = (a = 1, b = 0) => Math.random() * (b - a) + a;
@@ -115,7 +145,7 @@
   addEventListener('resize', resize, { passive: true });
   resize();
 
-  /* ---------- audio (light beeps) ---------- */
+  /* ---------- audio (light) ---------- */
   const AC = window.AudioContext || window.webkitAudioContext;
   const audio = new AC();
   let muted = false;
@@ -161,6 +191,9 @@
   sizeRing(); addEventListener('resize', sizeRing, { passive: true });
 
   const musicBtn = document.getElementById('musicBtn');
+  const musicVol = document.getElementById('musicVol');
+  const musicSrcText = document.getElementById('musicSrcText');
+  const setMusicUrlBtn = document.getElementById('setMusicUrlBtn');
 
   const LS_KEY = 'HALKA_BEST';
   let bestScore = +(localStorage.getItem(LS_KEY) || 0);
@@ -178,7 +211,6 @@
   };
 
   const params = {
-    // initial safe radius preserved
     safeRadius: Math.min(world.w(), world.h()) * 0.42,
     safeShrinkPerSec: 8 * dpr,
     outDPS: 14,
@@ -329,9 +361,7 @@
     if (state !== State.PLAY) return;
 
     // spawn & difficulty
-    // ---------- DEĞİŞTİRİLDİ: en küçük safeRadius artık 2x (100*dpr) ----------
-    params.safeRadius = Math.max(100 * dpr, params.safeRadius - params.safeShrinkPerSec * dt);
-    // ---------------------------------------------------------------------
+    params.safeRadius = Math.max(100 * dpr, params.safeRadius - params.safeShrinkPerSec * dt); // EN KÜÇÜK = öncekinin 2x'i (100*dpr)
     params.enemyRamp += dt;
     params.enemySpawn += dt * params.enemySpawnRate * (1 + params.enemyRamp * 0.01);
     while (params.enemySpawn > 1) { params.enemySpawn -= 1; spawnEnemy(); }
@@ -483,19 +513,14 @@
   /* ---------- öldürme sonrası ---------- */
   function onEnemyKilled(e) {
     sKill();
-    // her ölende +10 puan (sabit)
     player.score += 10;
     player.mult = Math.min(8, player.mult + 0.1);
     player.multTimer = 3;
-
-    // Particles
     for (let k = 0; k < 6; k++) particles.push({ x: e.x + rand(-6, 6), y: e.y + rand(-6, 6), life: .4, color: getCSS('--acc4') });
 
-    // sayaçlar
     killsSinceLastActivation++;
     totalKills++;
 
-    // Her 50. öldürmede bir kalp bırak
     if (totalKills % 50 === 0) {
       hearts.push({ x: e.x, y: e.y, timer: 10.0, r: 14 * dpr });
     }
@@ -624,82 +649,192 @@
   }
   requestAnimationFrame(loop);
 
-  /* ---------- MÜZİK: WebAudio ile hafif ambient pad oluşturma ---------- */
+  /* ---------- MÜZİK: synth fallback + harici dosya desteği, ses kontrolü ---------- */
+
+  // State ve düğmeler
   let musicPlaying = false;
-  let musicNodes = null; // { osc1, osc2, filter, gain, lfo, lfoGain }
-  function startMusic() {
-    if (musicPlaying) return;
-    audio.resume();
+  let musicNodes = null; // synth nodes { osc1, osc2, filter, gain, lfo, lfoGain }
+  let bgAudioEl = null; // HTMLAudioElement when using external file
+  let mediaSourceNode = null; // MediaElementSourceNode
+  const DEFAULT_VOL = +(localStorage.getItem('HALKA_MUSIC_VOL') || '0.035');
+
+  // ortak gain (her iki durumda da kullanılır)
+  const musicGain = audio.createGain();
+  musicGain.gain.value = DEFAULT_VOL;
+  musicGain.connect(audio.destination);
+
+  // filter (müziğe hafif lowpass uygula)
+  const musicFilter = audio.createBiquadFilter();
+  musicFilter.type = 'lowpass';
+  musicFilter.frequency.value = 800;
+  musicFilter.connect(musicGain);
+
+  // Helper: synth başlat
+  function startSynth() {
+    if (musicNodes) return;
     const t0 = audio.currentTime;
-    // temizle eski varsa
-    if (musicNodes) {
-      try { stopMusic(true); } catch(e){} // zorunlu temizleme
-    }
     const osc1 = audio.createOscillator();
     const osc2 = audio.createOscillator();
-    const filter = audio.createBiquadFilter();
-    filter.type = 'lowpass'; filter.frequency.value = 800;
-    const musicGain = audio.createGain(); musicGain.gain.value = 0;
     const lfo = audio.createOscillator();
     const lfoGain = audio.createGain();
-    lfo.frequency.value = 0.06; // yavaş modülasyon
-    lfoGain.gain.value = 220; // cutoff mod amount
-    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
 
     osc1.type = 'sine'; osc1.frequency.value = 110;
-    osc2.type = 'sine'; osc2.frequency.value = 220;
-    osc2.detune.value = 6;
+    osc2.type = 'sine'; osc2.frequency.value = 220; osc2.detune.value = 6;
 
-    // Hafif stereo detune oluşturmak için küçük delays (subtle) - keep simple
-    osc1.connect(filter); osc2.connect(filter);
-    filter.connect(musicGain); musicGain.connect(audio.destination);
+    lfo.frequency.value = 0.06; lfoGain.gain.value = 220;
+    lfo.connect(lfoGain); lfoGain.connect(musicFilter.frequency);
 
-    osc1.start(t0); osc2.start(t0);
-    lfo.start(t0);
+    osc1.connect(musicFilter); osc2.connect(musicFilter);
 
-    // fade-in düşük volüm
-    musicGain.gain.setValueAtTime(0, t0);
-    musicGain.gain.linearRampToValueAtTime(0.035, t0 + 2.2);
+    osc1.start(t0); osc2.start(t0); lfo.start(t0);
 
-    musicNodes = { osc1, osc2, filter, gain: musicGain, lfo, lfoGain };
+    musicNodes = { osc1, osc2, lfo, lfoGain };
+  }
 
+  function stopSynth(immediate = false) {
+    if (!musicNodes) return;
+    const t0 = audio.currentTime;
+    if (!immediate) {
+      // fade out
+      const g = musicGain.gain;
+      g.cancelScheduledValues(t0);
+      g.setValueAtTime(g.value, t0);
+      g.linearRampToValueAtTime(0, t0 + 1.0);
+      setTimeout(() => {
+        try { musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop(); } catch(e){}
+        try { musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect(); } catch(e){}
+        musicNodes = null;
+        // restore volume to stored value after stopping synth (so new plays use intended volume)
+        musicGain.gain.value = +(localStorage.getItem('HALKA_MUSIC_VOL') || DEFAULT_VOL);
+      }, 1050);
+    } else {
+      try { musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop(); } catch(e){}
+      try { musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect(); } catch(e){}
+      musicNodes = null;
+    }
+  }
+
+  // Helper: start external audio element
+  function startMedia(url) {
+    // cleanup synth if any
+    stopSynth(true);
+
+    if (bgAudioEl) {
+      // if same URL, just play
+      if (bgAudioEl.src === url) { bgAudioEl.play().catch(()=>{}); return; }
+      // else remove old
+      try { bgAudioEl.pause(); bgAudioEl.src = ''; } catch(e){}
+      if (mediaSourceNode) { try { mediaSourceNode.disconnect(); } catch(e){} mediaSourceNode = null; }
+      bgAudioEl = null;
+    }
+
+    // create HTMLAudioElement
+    bgAudioEl = document.createElement('audio');
+    bgAudioEl.crossOrigin = "anonymous";
+    bgAudioEl.loop = true;
+    bgAudioEl.preload = 'auto';
+    bgAudioEl.src = url;
+    bgAudioEl.style.display = 'none';
+    document.body.appendChild(bgAudioEl);
+
+    // connect to WebAudio for volume control
+    try {
+      mediaSourceNode = audio.createMediaElementSource(bgAudioEl);
+      mediaSourceNode.connect(musicFilter);
+    } catch (e) {
+      // createMediaElementSource can throw if same element used multiple times; attempt safe connect
+      try { bgAudioEl.remove(); } catch(e){}
+      bgAudioEl = null; mediaSourceNode = null;
+      console.warn('MediaElementSource oluşturulamadı:', e);
+      return;
+    }
+
+    // play (user gesture required — musicBtn handles resume)
+    bgAudioEl.play().catch(()=>{});
+  }
+
+  function stopMedia() {
+    if (bgAudioEl) {
+      try { bgAudioEl.pause(); } catch(e){}
+      try { mediaSourceNode.disconnect(); } catch(e){}
+      try { bgAudioEl.remove(); } catch(e){}
+    }
+    bgAudioEl = null; mediaSourceNode = null;
+  }
+
+  // Genel start/stop wrapper: otomatik olarak harici url varsa onu, yoksa synth'i kullanır.
+  let currentMusicUrl = EXTERNAL_MUSIC_URL || '';
+  musicSrcText.textContent = currentMusicUrl ? trimUrl(currentMusicUrl) : 'Yerel synthesizer';
+
+  function trimUrl(u) {
+    if (!u) return 'Yerel synthesizer';
+    try {
+      const p = u.split('/');
+      return p.slice(0,3).join('/') + '/…' + p.slice(-1)[0];
+    } catch(e){ return u; }
+  }
+
+  function startMusicPlayback() {
+    if (musicPlaying) return;
+    audio.resume();
+    if (currentMusicUrl) {
+      startMedia(currentMusicUrl);
+    } else {
+      startSynth();
+    }
     musicPlaying = true;
     musicBtn.classList.add('playing');
   }
-  function stopMusic(noFadeImmediate = false) {
-    if (!musicPlaying && !musicNodes) return;
-    const t0 = audio.currentTime;
-    if (musicNodes && !noFadeImmediate) {
-      const g = musicNodes.gain;
-      g.gain.cancelScheduledValues(t0);
-      g.gain.setValueAtTime(g.gain.value, t0);
-      g.gain.linearRampToValueAtTime(0, t0 + 1.2);
-      setTimeout(() => {
-        try {
-          musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop();
-          musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect();
-          musicNodes.filter.disconnect(); musicNodes.gain.disconnect();
-        } catch (e) {}
-        musicNodes = null;
-      }, 1300);
-    } else {
-      // immediate stop
-      try {
-        musicNodes.osc1.stop(); musicNodes.osc2.stop(); musicNodes.lfo.stop();
-        musicNodes.osc1.disconnect(); musicNodes.osc2.disconnect(); musicNodes.lfo.disconnect();
-        musicNodes.filter.disconnect(); musicNodes.gain.disconnect();
-      } catch (e) {}
-      musicNodes = null;
-    }
+
+  function stopMusicPlayback() {
+    if (!musicPlaying) return;
+    // stop whichever is active
+    if (currentMusicUrl) stopMedia();
+    else stopSynth();
     musicPlaying = false;
     musicBtn.classList.remove('playing');
   }
 
+  // Müzik butonu toggle
   musicBtn.addEventListener('click', (ev) => {
-    // ensure audio context resumed by user-gesture
     audio.resume();
-    if (musicPlaying) stopMusic();
-    else startMusic();
+    if (musicPlaying) stopMusicPlayback();
+    else startMusicPlayback();
+  });
+
+  // Ses kaydırgı
+  musicVol.value = +(localStorage.getItem('HALKA_MUSIC_VOL') || DEFAULT_VOL);
+  musicVol.addEventListener('input', () => {
+    const v = +musicVol.value;
+    musicGain.gain.setValueAtTime(v, audio.currentTime);
+    localStorage.setItem('HALKA_MUSIC_VOL', String(v));
+  });
+
+  // "Değiştir" butonu: kullanıcıdan URL al
+  setMusicUrlBtn.addEventListener('click', () => {
+    const val = prompt('Harici müzik (raw) URL\'si girin (boş bırakılırsa synth kullanılır):', currentMusicUrl || '');
+    if (val === null) return;
+    const trimmed = (val || '').trim();
+    if (!trimmed) {
+      // revert to synth
+      localStorage.removeItem('HALKA_MUSIC_URL');
+      currentMusicUrl = '';
+      musicSrcText.textContent = 'Yerel synthesizer';
+      // stop possible media and (optionally) start synth if was playing
+      stopMedia();
+      if (musicPlaying) startSynth();
+      return;
+    }
+    // kaydet
+    localStorage.setItem('HALKA_MUSIC_URL', trimmed);
+    currentMusicUrl = trimmed;
+    musicSrcText.textContent = trimUrl(trimmed);
+    // If currently playing, restart playback with new media
+    if (musicPlaying) {
+      stopSynth(true);
+      startMedia(trimmed);
+    }
+    alert('Müzik kaynağı kaydedildi. Eğer tarayıcı müzik çalmazsa müzik düğmesine tıklayın.');
   });
 
   /* ---------- diğer ---------- */
