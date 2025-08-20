@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>HALKA — Güncel (Hasar Düzeltmesi)</title>
+<title>HALKA — Kalp & Güvenli Alan</title>
 <style>
   :root{
     --bg:#0e0f14;
@@ -64,7 +64,7 @@
       <button class="btn" id="start">BAŞLA</button>
       <button class="btn" id="how">NASIL OYNANIR</button>
     </div>
-    <div id="howbox" style="display:none;margin-top:10px"><p style="color:var(--ink-dim)">Yer-bariyeri (E) korunmuştur. Koruyucu bariyer yalnızca <strong>hazır</strong>ken butona tıklanarak aktive edilir ve 5 saniye sürer; bu süre içinde çembere giren düşmanlar anında ölür. Skor her öldürmede +10 puandır.</p></div>
+    <div id="howbox" style="display:none;margin-top:10px"><p style="color:var(--ink-dim)">Yer-bariyeri (E) korunmuştur. Koruyucu bariyer yalnızca <strong>hazır</strong>ken butona tıklanarak aktive edilir ve 5 saniye sürer; bu süre içinde çembere giren düşmanlar anında ölür. Skor her öldürmede +10 puandır. Her 50 öldürmede bir kalp bırakılır; kalbi alırsanız canınız dolar.</p></div>
   </div>
 </div>
 
@@ -120,6 +120,7 @@
   const sHurt = () => beep({ freq: 110, time: .12, type: 'sawtooth', vol: 0.08 });
   const sDash = () => beep({ freq: 900, time: .05, type: 'square', vol: 0.06 });
   const sBarrier = () => beep({ freq: 460, time: .12, type: 'triangle', vol: 0.07 });
+  const sHeal = () => beep({ freq: 640, time: .12, type: 'sine', vol: 0.08 });
 
   /* ---------- durum & UI ---------- */
   const State = { MENU: 0, PLAY: 1, PAUSE: 2, DEAD: 3 };
@@ -182,7 +183,6 @@
   const barrierHPDrain = 2;
   const barrierCD = { cd: 0, cdMax: 5.0 };
   function placeBarrier() {
-    // artık shard yok; yalnızca CD kontrolü var
     if (barrierCD.cd > 0) return;
     sBarrier();
     const rot = barrierRot ? Math.PI / 2 : 0;
@@ -199,10 +199,12 @@
   }
 
   /* ---------- GEREKLİ DÜZELTME: dış alandan gelen hasar için "tolerans" ---------- */
-  // Bu timer sayesinde oyuncu kısa süreli pozisyon değişikliklerinde (ör. küçük hareket/dash)
-  // anında hasar almaz; güvenli alanın dışında sürekli kaldığında hasar uygulanır.
   let outsideTimer = 0;
-  const OUTSIDE_GRACE = 0.25; // saniye tolerans (0.25s) — çok kısa, oyun mantığını büyük oranda değiştirmez.
+  const OUTSIDE_GRACE = 0.25; // saniye tolerans
+
+  /* ---------- Hearts & total kills ---------- */
+  let totalKills = 0;
+  const hearts = []; // { x, y, timer, r }
 
   /* ---------- girdi (klavye/mouse/touch) ---------- */
   const keys = new Set();
@@ -258,7 +260,6 @@
       killsSinceLastActivation = 0;
       sBarrier();
     } else {
-      // hazır değilse hafif uyarı sesi
       beep({ freq: 220, time: 0.06, vol: 0.03 });
     }
   });
@@ -288,10 +289,10 @@
   function resetGame() {
     state = State.PLAY; menuEl.style.display = 'none';
     Object.assign(player, { x: world.cx(), y: world.cy(), vx: 0, vy: 0, hp: 100, score: 0, mult: 1, multTimer: 0, fireCD: 0, dashCD: 0 });
-    bullets.length = enemies.length = barriers.length = particles.length = 0;
+    bullets.length = enemies.length = barriers.length = particles.length = hearts.length = 0;
     params.safeRadius = Math.min(world.w(), world.h()) * 0.42; params.enemySpawn = 0; params.enemyRamp = 0;
-    killsSinceLastActivation = 0; barrierAutoReady = false; barrierAutoActive = false; barrierAutoTimer = 0; barrierCD.cd = 0;
-    outsideTimer = 0; // reset düzeltmesi burada
+    killsSinceLastActivation = 0; totalKills = 0; barrierAutoReady = false; barrierAutoActive = false; barrierAutoTimer = 0; barrierCD.cd = 0;
+    outsideTimer = 0;
   }
 
   /* ---------- ateş ---------- */
@@ -426,6 +427,20 @@
       if (b.hp <= 0) barriers.splice(i, 1);
     }
 
+    // kalpler: süreyi azalt ve çarpışma kontrolü
+    for (let i = hearts.length - 1; i >= 0; i--) {
+      const h = hearts[i];
+      h.timer -= dt;
+      // çarpışma kontrolü: kalbe dokunursa canı fullle
+      if (dist(player.x, player.y, h.x, h.y) <= player.r + h.r) {
+        player.hp = player.hpMax;
+        sHeal();
+        hearts.splice(i, 1);
+        continue;
+      }
+      if (h.timer <= 0) hearts.splice(i, 1);
+    }
+
     // koruyucu bariyer zamanlayıcı
     if (barrierAutoActive) {
       barrierAutoTimer -= dt;
@@ -440,7 +455,7 @@
     // yer-bariyeri CD
     if (barrierCD.cd > 0) barrierCD.cd = Math.max(0, barrierCD.cd - dt);
 
-    // çarpan süresi (görsel/diğer kullanım korunur, puan sabit +10)
+    // çarpan süresi
     if (player.mult > 1) { player.multTimer -= dt; if (player.multTimer <= 0) player.mult = Math.max(1, Math.floor(player.mult)); }
 
     // oyun sonu
@@ -450,17 +465,22 @@
   /* ---------- öldürme sonrası ---------- */
   function onEnemyKilled(e) {
     sKill();
-    // İstenen: her ölende tam 10 puan ekle (çarpan kullanılmaz)
+    // her ölende +10 puan (sabit)
     player.score += 10;
-    // Ancak çarpan mantığı görsel/diğer için korunuyor (yine artıyor)
     player.mult = Math.min(8, player.mult + 0.1);
     player.multTimer = 3;
 
-    // Particles (korundu)
+    // Particles
     for (let k = 0; k < 6; k++) particles.push({ x: e.x + rand(-6, 6), y: e.y + rand(-6, 6), life: .4, color: getCSS('--acc4') });
 
-    // hazır bariyer mantığı: sayacı artır
+    // sayı sayaçları
     killsSinceLastActivation++;
+    totalKills++;
+
+    // Her 50. öldürmede bir kalp bırak
+    if (totalKills % 50 === 0) {
+      hearts.push({ x: e.x, y: e.y, timer: 10.0, r: 14 * dpr });
+    }
   }
 
   /* ---------- çizim ---------- */
@@ -468,6 +488,18 @@
 
   function draw() {
     ctx.fillStyle = getCSS('--bg'); ctx.fillRect(0, 0, world.w(), world.h());
+
+    // --- GÜVENLİ ALAN GÖRSELİ: gri kesik çember ---
+    ctx.save();
+    ctx.setLineDash([8 * dpr, 8 * dpr]);
+    ctx.strokeStyle = '#9aa0a6';
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.arc(world.cx(), world.cy(), params.safeRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+    // ---------------------------------------------
 
     // yer bariyerleri (hafif görünür)
     for (const b of barriers) {
@@ -489,7 +521,22 @@
       ctx.strokeStyle = getCSS('--acc3'); ctx.lineWidth = 2 * dpr; ctx.stroke();
     }
 
-    // oyuncu (kontrol edilebilir beyaz top)
+    // kalpler (❤)
+    for (const h of hearts) {
+      ctx.save();
+      ctx.font = `${22 * dpr}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // hafif parlayan alpha ile göster
+      const alpha = Math.max(0.25, Math.min(1, h.timer / 10));
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = getCSS('--acc4');
+      ctx.fillText('❤', h.x, h.y + (2 * dpr));
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    // oyuncu
     ctx.save(); ctx.translate(player.x, player.y);
     ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.beginPath(); ctx.arc(3 * dpr, 3 * dpr, player.r, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI * 2); ctx.fillStyle = '#dfe7fd'; ctx.fill();
