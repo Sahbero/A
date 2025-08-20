@@ -1,201 +1,140 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Halka</title>
-<style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: radial-gradient(circle, #0f2027, #203a43, #2c5364);
-    font-family: Arial, sans-serif;
-    color: white;
-  }
-  #gameCanvas {
-    display: block;
-    margin: 0 auto;
-    background: transparent;
-  }
-  #barrierButton {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #444;
-    border: none;
-    cursor: pointer;
-    outline: none;
-    font-size: 16px;
-    color: white;
-    z-index: 10;
-    position: relative;
-  }
-  #barrierRing {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 6px solid red;
-    box-sizing: border-box;
-    z-index: 5;
-    transition: border-color 0.3s;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Barrier Oyun</title>
+  <style>
+    canvas {
+      background: #111;
+      display: block;
+      margin: auto;
+    }
+    #barrierButton {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #222;
+      border: 4px solid #444;
+      cursor: pointer;
+      outline: none;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    #barrierRing {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-<div id="barrierRing"></div>
-<button id="barrierButton">B</button>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <div id="barrierRing"></div>
+  <button id="barrierButton">B</button>
 
-<script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-let player = { x: 400, y: 300, radius: 20, speed: 5 };
-let enemies = [];
-let score = 0;
+    const barrierButton = document.getElementById("barrierButton");
+    const barrierRing = document.getElementById("barrierRing");
 
-let barrier = {
-  active: false,
-  duration: 3000, // 3 saniye
-  cooldown: 5000, // 5 saniye
-  ready: true,
-  startTime: 0
-};
+    let barrierReady = false;
+    let barrierActive = false;
+    let barrierCooldown = 5000; 
+    let barrierDuration = 3000; 
+    let barrierTimer = 0;
+    let barrierCooldownTimer = 0;
 
-const barrierBtn = document.getElementById("barrierButton");
-const barrierRing = document.getElementById("barrierRing");
+    let lastTime = 0;
 
-// Bariyer durumunu güncelle
-function updateBarrierRing() {
-  if (barrier.active) {
-    let elapsed = Date.now() - barrier.startTime;
-    let progress = elapsed / barrier.duration;
-    let size = 100 - progress * 100;
-    barrierRing.style.width = size + "px";
-    barrierRing.style.height = size + "px";
-    barrierRing.style.borderColor = "lime";
-    if (progress >= 1) {
-      barrier.active = false;
-      barrier.ready = false;
-      barrier.startTime = Date.now();
-      barrierRing.style.width = "100px";
-      barrierRing.style.height = "100px";
-      barrierRing.style.borderColor = "red";
-    }
-  } else if (!barrier.ready) {
-    let elapsed = Date.now() - barrier.startTime;
-    if (elapsed >= barrier.cooldown) {
-      barrier.ready = true;
-      barrierRing.style.borderColor = "lime";
-    }
-  }
-}
-
-// Bariyer butonuna basıldığında
-barrierBtn.addEventListener("click", () => {
-  if (barrier.ready && !barrier.active) {
-    barrier.active = true;
-    barrier.startTime = Date.now();
-    barrierRing.style.borderColor = "lime";
-  }
-});
-
-// Düşman oluştur
-function spawnEnemy() {
-  let side = Math.floor(Math.random() * 4);
-  let x, y;
-  if (side === 0) { x = 0; y = Math.random() * canvas.height; }
-  if (side === 1) { x = canvas.width; y = Math.random() * canvas.height; }
-  if (side === 2) { x = Math.random() * canvas.width; y = 0; }
-  if (side === 3) { x = Math.random() * canvas.width; y = canvas.height; }
-  enemies.push({ x, y, radius: 15, speed: 2 });
-}
-setInterval(spawnEnemy, 1500);
-
-// Çizimler
-function drawPlayer() {
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-  ctx.fillStyle = barrier.active ? "cyan" : "white";
-  ctx.fill();
-  ctx.closePath();
-}
-function drawEnemies() {
-  enemies.forEach(e => {
-    ctx.beginPath();
-    ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
-    ctx.fill();
-    ctx.closePath();
-  });
-}
-function drawScore() {
-  ctx.font = "20px Arial";
-  ctx.fillStyle = "white";
-  ctx.fillText("Skor: " + score, 20, 30);
-}
-
-// Hareketler
-let keys = {};
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => keys[e.key] = false);
-
-function movePlayer() {
-  if (keys["ArrowUp"]) player.y -= player.speed;
-  if (keys["ArrowDown"]) player.y += player.speed;
-  if (keys["ArrowLeft"]) player.x -= player.speed;
-  if (keys["ArrowRight"]) player.x += player.speed;
-
-  player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-  player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
-}
-
-// Çarpışma kontrolü
-function checkCollisions() {
-  enemies.forEach((e, i) => {
-    let dx = player.x - e.x;
-    let dy = player.y - e.y;
-    let dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < player.radius + e.radius) {
-      if (!barrier.active) {
-        alert("Oyun Bitti! Skor: " + score);
-        document.location.reload();
-      } else {
-        enemies.splice(i, 1);
-        score += 10;
+    // Bariyer çizim fonksiyonu
+    function drawBarrier() {
+      if (barrierActive) {
+        ctx.beginPath();
+        ctx.arc(400, 300, 100, 0, Math.PI * 2);
+        ctx.strokeStyle = "white";
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "white";
+        ctx.lineWidth = 6;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      } else if (!barrierReady) {
+        ctx.beginPath();
+        ctx.setLineDash([10, 10]);
+        ctx.arc(400, 300, 100, 0, Math.PI * 2);
+        ctx.strokeStyle = "gray";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
     }
-  });
-}
 
-// Oyun döngüsü
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Bariyer UI halkası
+    function updateBarrierRing() {
+      if (barrierActive) {
+        const progress = barrierTimer / barrierDuration;
+        barrierRing.style.border = `4px solid green`;
+        barrierRing.style.background = `conic-gradient(green ${progress * 360}deg, transparent 0deg)`;
+      } else if (barrierReady) {
+        barrierRing.style.border = `4px solid green`;
+        barrierRing.style.background = "none";
+      } else {
+        barrierRing.style.border = `4px solid red`;
+        barrierRing.style.background = "none";
+      }
+    }
 
-  movePlayer();
-  enemies.forEach(e => {
-    let dx = player.x - e.x;
-    let dy = player.y - e.y;
-    let length = Math.sqrt(dx * dx + dy * dy);
-    e.x += (dx / length) * e.speed;
-    e.y += (dy / length) * e.speed;
-  });
+    barrierButton.addEventListener("click", () => {
+      if (barrierReady) {
+        barrierActive = true;
+        barrierReady = false;
+        barrierTimer = barrierDuration;
+        barrierCooldownTimer = barrierCooldown;
+      }
+    });
 
-  drawPlayer();
-  drawEnemies();
-  drawScore();
-  checkCollisions();
+    function update(deltaTime) {
+      if (barrierActive) {
+        barrierTimer -= deltaTime;
+        if (barrierTimer <= 0) {
+          barrierActive = false;
+          barrierTimer = 0;
+        }
+      } else {
+        if (barrierCooldownTimer > 0) {
+          barrierCooldownTimer -= deltaTime;
+          if (barrierCooldownTimer <= 0) {
+            barrierReady = true;
+          }
+        }
+      }
+      updateBarrierRing();
+    }
 
-  updateBarrierRing();
+    function gameLoop(timestamp) {
+      const deltaTime = timestamp - lastTime;
+      lastTime = timestamp;
 
-  requestAnimationFrame(gameLoop);
-}
-gameLoop();
-</script>
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Oyun öğeleri korunuyor
+      drawBarrier();
+
+      update(deltaTime);
+      requestAnimationFrame(gameLoop);
+    }
+
+    requestAnimationFrame(gameLoop);
+  </script>
 </body>
 </html>
