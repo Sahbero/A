@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>AURORA ARENA — Tek Dosya Tarayıcı Oyunu</title>
+<title>HALKA — Tek Dosya Tarayıcı Oyunu</title>
 <style>
   :root{
     --bg:#0e0f14;
@@ -43,8 +43,20 @@
   #mob{
     position:fixed;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;
   }
-  .mbtn{pointer-events:auto;min-width:90px;padding:10px 12px;border-radius:12px;background:#1e2330;color:var(--ink);border:1px solid rgba(255,255,255,0.08)}
+  .mbtn{pointer-events:auto;min-width:110px;padding:10px 12px;border-radius:12px;background:#1e2330;color:var(--ink);border:1px solid rgba(255,255,255,0.08)}
   .hint{font-size:12px;color:var(--ink-dim)}
+
+  /* Bariyer HUD kutuları */
+  .hud{
+    position:fixed;right:10px;top:10px;display:flex;flex-direction:column;gap:8px;
+    background:rgba(20,22,30,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px;
+    box-shadow:0 8px 24px var(--shadow); pointer-events:none; min-width:220px;
+  }
+  .bar{height:10px;background:#1d2230;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+  .bar>i{display:block;height:100%;width:0%}
+  .barrier-health>i{background:linear-gradient(90deg,var(--acc1),#b5f7bd)}
+  .barrier-cd>i{background:linear-gradient(90deg,var(--acc2),#b8dcff)}
+  .hud .row2{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim)}
 </style>
 </head>
 <body>
@@ -53,18 +65,17 @@
 <!-- Başlangıç / Duraklat menüsü -->
 <div class="overlay" id="menu">
   <div class="panel">
-    <h1>AURORA ARENA</h1>
-    <p>Daralan güvenli alanda hayatta kal. Düşmanları yok et, <span style="color:var(--acc1);font-weight:600">shard</span> topla,
-      bariyer kur ve puan çarpanını yükselt.</p>
+    <h1>HALKA</h1>
+    <p>Merkeze yakın kal, güvenli halka daralırken hayatta kal. Düşmanları yok et, <span style="color:var(--acc1);font-weight:600">shard</span> topla, bariyer kur.</p>
     <div class="grid">
       <div>
         <strong>Kontroller (PC)</strong>
-        <p><span class="k">WASD</span> hareket • Fare nişan • <span class="k">Sol Tık</span> ateş<br>
+        <p><span class="k">WASD</span> hareket • Fare: nişan • <span class="k">Sol Tık</span> ateş<br>
            <span class="k">Shift</span> dash • <span class="k">E</span> bariyer (5 shard) • <span class="k">R</span> döndür • <span class="k">Esc</span> duraklat</p>
       </div>
       <div>
         <strong>Mobil</strong>
-        <p>Sol ekran: hareket • Sağ: nişan+ateş • Altta “Bariyer” butonu.</p>
+        <p>Sol alan: hareket • Sağ alan: nişan+ateş • Alttaki “Bariyer” ile kur.</p>
       </div>
     </div>
     <div style="margin:8px 0 12px">
@@ -75,9 +86,19 @@
       <button class="btn" id="how">NASIL OYNANIR</button>
     </div>
     <div id="howbox" style="display:none;margin-top:10px">
-      <p class="hint">İpucu: Shard → 5 adet = 1 bariyer. Bariyerler mermiyi geçirir, düşmanı engeller, sınırlı dayanıklıdır. Güvenli halka zamanla daralır, dışarıda hasar alırsın.</p>
+      <p class="hint">Shard: 5 adet = 1 bariyer. Bariyer mermiyi durdurur, düşmanı engeller, dayanıklılığı tükenince yok olur. Güvenli halka sürekli daralır; halkaya dışarıda kalmak can kaybettirir.</p>
     </div>
   </div>
+</div>
+
+<!-- Bariyer HUD (koruma ve bekleme süresi) -->
+<div class="hud" id="hudBox" aria-hidden="true">
+  <div style="font-weight:600">Bariyer Durumu</div>
+  <div class="row2"><span>Koruma (HP)</span><span id="bhpTxt">—</span></div>
+  <div class="bar barrier-health"><i id="bhpBar"></i></div>
+  <div class="row2"><span>Yeniden Kullanım</span><span id="bcdTxt">Hazır</span></div>
+  <div class="bar barrier-cd"><i id="bcdBar"></i></div>
+  <div class="row2"><span>Shard</span><span id="shardTxt">0</span></div>
 </div>
 
 <!-- Mobil butonları -->
@@ -141,14 +162,22 @@ const bestEl = document.getElementById('best');
 const startBtn = document.getElementById('start');
 const howBtn = document.getElementById('how');
 const howBox = document.getElementById('howbox');
+
+const hudBox = document.getElementById('hudBox');
+const bhpBar = document.getElementById('bhpBar');
+const bcdBar = document.getElementById('bcdBar');
+const bhpTxt = document.getElementById('bhpTxt');
+const bcdTxt = document.getElementById('bcdTxt');
+const shardTxt = document.getElementById('shardTxt');
+
 const mbBarrierBtn = document.getElementById('mbBarrier');
 const mbPauseBtn = document.getElementById('mbPause');
 
-const LS_KEY='AURORA_ARENA_BEST';
+const LS_KEY='HALKA_BEST';
 let bestScore = +(localStorage.getItem(LS_KEY)||0);
 bestEl.textContent = bestScore.toLocaleString('tr-TR');
 
-let tPrev=now(), acc=0;
+let tPrev=now();
 
 /* =========  Dünya  ========= */
 const world = {
@@ -167,29 +196,37 @@ const player = {
 
 const params = {
   safeRadius: 0,
-  safeShrinkPerSec: 8*dpr, // güvenli yarıçap daralma hızı
-  outDPS: 14, // güvenli alan dışı hasar/s
-  enemySpawn: 0, enemySpawnRate: 0.9, // saniyede
+  safeShrinkPerSec: 8*dpr,
+  outDPS: 14,
+  enemySpawn: 0, enemySpawnRate: 0.9,
   enemySpeedBase: 0.18*dpr,
   enemyHpBase: 16,
   enemyRamp: 0,
 };
 
-/* =========  Varlık Havuzları  ========= */
+/* =========  Bariyer Sistemi (Yeni: CD & HP HUD)  ========= */
+let barrierRot = 0;
+let barrierIdSeq = 1;
+let lastBarrierId = null; // son yerleştirilen bariyeri HUD'da izlemek için
+const barrier = { cd:0, cdMax:5.0 }; // 5 sn bekleme
 const bullets=[], enemies=[], shards=[], barriers=[], particles=[];
 
 function resetGame(){
   state = State.PLAY;
   menuEl.style.display='none';
+  hudBox.style.display='';
   const cx=world.cx(), cy=world.cy();
   Object.assign(player,{x:cx,y:cy,vx:0,vy:0,hp:100,shards:0,score:0,mult:1,multTimer:0,fireCD:0,dashCD:0});
   bullets.length=enemies.length=shards.length=barriers.length=particles.length=0;
   params.safeRadius = Math.min(world.w(),world.h())*0.42;
   params.enemySpawn=0; params.enemyRamp=0; params.enemySpawnRate=0.9;
+  barrier.cd=0; lastBarrierId=null;
+  updateBarrierHUD();
 }
 function gameOver(){
   state=State.DEAD;
   menuEl.style.display='';
+  hudBox.style.display='';
   startBtn.textContent='YENİDEN BAŞLA';
   const s = Math.floor(player.score);
   if(s>bestScore){bestScore=s; localStorage.setItem(LS_KEY,bestScore); bestEl.textContent=bestScore.toLocaleString('tr-TR');}
@@ -215,7 +252,7 @@ canvas.addEventListener('mousedown',e=>{
 canvas.addEventListener('mouseup',()=>{mouse.down=false;});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 
-/* =========  Girdi (Mobil sadeleştirilmiş)  ========= */
+/* =========  Girdi (Mobil)  ========= */
 let touchL=null,touchR=null;
 canvas.addEventListener('touchstart',e=>{
   audio.resume();
@@ -267,18 +304,28 @@ function spawnEnemy(){
   enemies.push({x:x, y:y, vx:0, vy:0, r:12*dpr, speed, hp, maxhp:hp});
 }
 function placeBarrier(){
-  if(player.shards<5) return;
+  // Şartlar: yeterli shard + CD bitmiş olmalı
+  if(player.shards<5 || barrier.cd>0) return;
   player.shards-=5; sBarrier();
   const rot = barrierRot?Math.PI/2:0;
   const len = 80*dpr, thick=12*dpr;
   const dx = Math.cos(rot), dy=Math.sin(rot);
+  const id = barrierIdSeq++;
   barriers.push({
+    id,
     x: clamp(player.x + dx*24*dpr, 40, world.w()-40),
     y: clamp(player.y + dy*24*dpr, 40, world.h()-40),
-    w: rot?thick:len, h: rot?len:thick, hp: 120, rot
+    w: rot?thick:len, h: rot?len:thick,
+    hp: 140, hpMax:140, rot
   });
+  lastBarrierId = id;
+  barrier.cd = barrier.cdMax; // CD başlat
+  updateBarrierHUD();
 }
-let barrierRot = 0;
+function getLastBarrier(){
+  if(lastBarrierId==null) return null;
+  return barriers.find(b=>b.id===lastBarrierId) || null;
+}
 
 /* =========  Güncelle & Çiz  ========= */
 function step(dt){
@@ -315,29 +362,24 @@ function step(dt){
   player.fireCD = Math.max(0, player.fireCD - dt);
   const firing = mouse.down || !!touchR;
   if(firing && player.fireCD<=0){
-    if(touchR){
-      // mobil nişan — sağ dokunma yönü
-      mouse.x = touchR.x*dpr; mouse.y = touchR.y*dpr;
-    }
+    if(touchR){ mouse.x = touchR.x*dpr; mouse.y = touchR.y*dpr; }
     shoot(); player.fireCD = player.fireRate;
   }
 
-  // Bariyer yerleştirme / döndürme
+  // Bariyer kur / döndür
   if(keys.has('e')){ keys.delete('e'); placeBarrier(); }
   if(keys.has('r')){ keys.delete('r'); barrierRot = 1 - barrierRot; }
 
   // Hareket fiziği
   const mv = Math.hypot(mx,my);
   if(mv>0){ mx/=mv; my/=mv; }
-  const accel = player.speed* (player.hp<25?1.2:1); // son canlarda ufak destek
   player.vx = lerp(player.vx, mx*4*dpr, 0.18);
   player.vy = lerp(player.vy, my*4*dpr, 0.18);
   player.x = clamp(player.x + player.vx, 10, world.w()-10);
   player.y = clamp(player.y + player.vy, 10, world.h()-10);
 
   // Güvenli alan hasarı
-  const dcen = dist(player.x,player.y,world.cx(),world.cy());
-  if(dcen>params.safeRadius){
+  if(dist(player.x,player.y,world.cx(),world.cy())>params.safeRadius){
     player.hp -= params.outDPS*dt;
   }
 
@@ -349,7 +391,7 @@ function step(dt){
     // bariyer çarpışma
     for(const bar of barriers){
       if(b.x>bar.x-bar.w/2 && b.x<bar.x+bar.w/2 && b.y>bar.y-bar.h/2 && b.y<bar.y+bar.h/2){
-        bullets.splice(i,1); break;
+        bullets.splice(i,1); bar.hp -= 12; break;
       }
     }
   }
@@ -364,8 +406,7 @@ function step(dt){
     // Bariyerler düşmanı iter ve hasar aldırır
     for(const bar of barriers){
       if(e.x>bar.x-bar.w/2 && e.x<bar.x+bar.w/2 && e.y>bar.y-bar.h/2 && e.y<bar.y+bar.h/2){
-        // basit itme
-        e.x -= e.vx*5; e.y -= e.vy*5; bar.hp -= 12*dt;
+        e.x -= e.vx*5; e.y -= e.vy*5; bar.hp -= 20*dt;
       }
     }
 
@@ -384,19 +425,14 @@ function step(dt){
     // Oyuncuya çarpma
     if(dist(e.x,e.y,player.x,player.y) < e.r + player.r){
       player.hp -= 22*dt; sHurt();
-      // küçük geri tepme
       player.vx -= e.vx*0.6; player.vy -= e.vy*0.6;
     }
 
     // Öldü mü?
     if(e.hp<=0){
       enemies.splice(i,1); player.score += 10*player.mult; sKill();
-      player.mult = Math.min(8, player.mult+0.1); player.multTimer = 3; // 3 sn içinde zinciri sürdür
-      // shard bırak
-      if(Math.random()<0.9){
-        shards.push({x:e.x,y:e.y, r:6*dpr, life:8});
-      }
-      // Parçacık
+      player.mult = Math.min(8, player.mult+0.1); player.multTimer = 3;
+      if(Math.random()<0.9){ shards.push({x:e.x,y:e.y, r:6*dpr, life:8}); }
       for(let k=0;k<6;k++) particles.push({x:e.x+rand(-6,6),y:e.y+rand(-6,6),life:.4,color:getCSS('--acc4')});
     }
   }
@@ -410,11 +446,14 @@ function step(dt){
     } else if(s.life<=0){shards.splice(i,1);}
   }
 
-  // Bariyer dayanıklılık
+  // Bariyer dayanıklılık ve ömür
   for(let i=barriers.length-1;i>=0;i--){
     const b=barriers[i]; b.hp-= 2*dt; // zamanla az miktar erisin
     if(b.hp<=0){barriers.splice(i,1);}
   }
+
+  // Bariyer CD
+  if(barrier.cd>0){ barrier.cd=Math.max(0, barrier.cd - dt); }
 
   // Çarpan zamanlayıcı
   if(player.mult>1){
@@ -424,6 +463,9 @@ function step(dt){
 
   // Puan: zamana bağlı artış
   player.score += dt * (1 + params.enemyRamp*0.1) * player.mult;
+
+  // HUD güncelle
+  updateBarrierHUD();
 
   // Can bitti mi?
   if(player.hp<=0){ gameOver(); }
@@ -455,6 +497,10 @@ function draw(){
     ctx.fillStyle='rgba(122,229,130,0.22)'; ctx.strokeStyle=getCSS('--acc1');
     ctx.lineWidth=2*dpr;
     ctx.beginPath(); ctx.rect(-b.w/2,-b.h/2,b.w,b.h); ctx.fill(); ctx.stroke();
+    // HP üst göstergesi
+    const r = clamp(b.hp/b.hpMax,0,1);
+    ctx.fillStyle=getCSS('--acc1');
+    ctx.fillRect(-b.w/2, -b.h/2-6*dpr, b.w*r, 4*dpr);
     ctx.restore();
   }
 
@@ -469,19 +515,15 @@ function draw(){
     const hpR = clamp(e.hp/e.maxhp,0,1);
     ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
     ctx.fillStyle=getCSS('--acc4'); ctx.globalAlpha=0.8; ctx.fill(); ctx.globalAlpha=1;
-    // HP çemberi
     ctx.beginPath(); ctx.arc(e.x,e.y,e.r+3*dpr,-Math.PI/2,-Math.PI/2+hpR*2*Math.PI);
     ctx.strokeStyle=getCSS('--acc3'); ctx.lineWidth=2*dpr; ctx.stroke();
   }
 
   // Oyuncu
   ctx.save(); ctx.translate(player.x,player.y);
-  // gölge
   ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(3*dpr,3*dpr,player.r,0,Math.PI*2); ctx.fill();
-  // gövde
   ctx.beginPath(); ctx.arc(0,0,player.r,0,Math.PI*2);
   ctx.fillStyle='#dfe7fd'; ctx.fill();
-  // nişan çizgisi
   ctx.strokeStyle=getCSS('--ink-dim'); ctx.lineWidth=2*dpr;
   ctx.beginPath(); ctx.moveTo(0,0); 
   const aimx=mouse.x||player.x, aimy=mouse.y||player.y;
@@ -498,7 +540,7 @@ function draw(){
     ctx.globalAlpha=1;
   }
 
-  // HUD
+  // Sol üst HUD (oyun genel)
   const pad=10*dpr; ctx.font = `${14*dpr}px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif`;
   ctx.fillStyle=getCSS('--ink');
   ctx.fillText(`Skor: ${Math.floor(player.score).toLocaleString('tr-TR')}`, pad, 20*dpr);
@@ -514,12 +556,24 @@ function draw(){
   // Safe radius gösterge
   ctx.fillStyle=getCSS('--ink-dim');
   ctx.fillText(`Güvenli Alan: ${(params.safeRadius/dpr|0)} px`, pad, 92*dpr);
+}
 
-  // Mobil ipucu
-  if(touchL||touchR){
-    ctx.fillStyle='rgba(255,255,255,0.08)';
-    ctx.fillRect(innerWidth*0.5*dpr-1,0,2,world.h());
+/* =========  Bariyer HUD Güncelleme ========= */
+function updateBarrierHUD(){
+  const b = getLastBarrier();
+  let hpRatio = 0, hpText = '—';
+  if(b){
+    hpRatio = clamp(b.hp/b.hpMax,0,1);
+    hpText = Math.round(hpRatio*100)+'%';
   }
+  bhpBar.style.width = (hpRatio*100).toFixed(1)+'%';
+  bhpTxt.textContent = hpText;
+
+  const cdRatio = barrier.cd>0 ? (1 - barrier.cd/barrier.cdMax) : 1;
+  bcdBar.style.width = (cdRatio*100).toFixed(1)+'%';
+  bcdTxt.textContent = barrier.cd>0 ? `${barrier.cd.toFixed(1)} sn` : 'Hazır';
+
+  shardTxt.textContent = String(player.shards);
 }
 
 /* =========  Döngü  ========= */
@@ -539,8 +593,8 @@ addEventListener('blur',()=>{ if(state===State.PLAY){state=State.PAUSE; menuEl.s
 canvas.addEventListener('click',()=>audio.resume(),{once:true});
 document.addEventListener('keydown',e=>{
   if(e.key.toLowerCase()==='m'){ muted=!muted; }
-  if(e.key==='E' || e.key==='e'){ /* E zaten handle ediliyor */ }
 });
+
 })();
 </script>
 </body>
