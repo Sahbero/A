@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Barrier Oyun</title>
+  <title>Halka Oyun</title>
   <style>
     canvas {
       background: #111;
@@ -17,12 +17,13 @@
       height: 80px;
       border-radius: 50%;
       background: #222;
-      border: 4px solid #444;
+      border: none;
       cursor: pointer;
       outline: none;
       color: white;
       font-weight: bold;
       font-size: 14px;
+      z-index: 2;
     }
     #barrierRing {
       position: absolute;
@@ -33,6 +34,7 @@
       border-radius: 50%;
       box-sizing: border-box;
       pointer-events: none;
+      z-index: 1;
     }
   </style>
 </head>
@@ -53,7 +55,7 @@
     let barrierCooldown = 5000; 
     let barrierDuration = 3000; 
     let barrierTimer = 0;
-    let barrierCooldownTimer = 0;
+    let barrierCooldownTimer = barrierCooldown;
 
     let lastTime = 0;
 
@@ -83,13 +85,13 @@
     function updateBarrierRing() {
       if (barrierActive) {
         const progress = barrierTimer / barrierDuration;
-        barrierRing.style.border = `4px solid green`;
+        barrierRing.style.border = "4px solid green";
         barrierRing.style.background = `conic-gradient(green ${progress * 360}deg, transparent 0deg)`;
       } else if (barrierReady) {
-        barrierRing.style.border = `4px solid green`;
+        barrierRing.style.border = "4px solid green";
         barrierRing.style.background = "none";
       } else {
-        barrierRing.style.border = `4px solid red`;
+        barrierRing.style.border = "4px solid red";
         barrierRing.style.background = "none";
       }
     }
