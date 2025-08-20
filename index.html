@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>HALKA — Güncel</title>
+<title>HALKA — Güncel (Hasar Düzeltmesi)</title>
 <style>
   :root{
     --bg:#0e0f14;
@@ -198,6 +198,12 @@
     barrierCD.cd = barrierCD.cdMax;
   }
 
+  /* ---------- GEREKLİ DÜZELTME: dış alandan gelen hasar için "tolerans" ---------- */
+  // Bu timer sayesinde oyuncu kısa süreli pozisyon değişikliklerinde (ör. küçük hareket/dash)
+  // anında hasar almaz; güvenli alanın dışında sürekli kaldığında hasar uygulanır.
+  let outsideTimer = 0;
+  const OUTSIDE_GRACE = 0.25; // saniye tolerans (0.25s) — çok kısa, oyun mantığını büyük oranda değiştirmez.
+
   /* ---------- girdi (klavye/mouse/touch) ---------- */
   const keys = new Set();
   addEventListener('keydown', e => {
@@ -285,6 +291,7 @@
     bullets.length = enemies.length = barriers.length = particles.length = 0;
     params.safeRadius = Math.min(world.w(), world.h()) * 0.42; params.enemySpawn = 0; params.enemyRamp = 0;
     killsSinceLastActivation = 0; barrierAutoReady = false; barrierAutoActive = false; barrierAutoTimer = 0; barrierCD.cd = 0;
+    outsideTimer = 0; // reset düzeltmesi burada
   }
 
   /* ---------- ateş ---------- */
@@ -348,10 +355,17 @@
     player.x = clamp(player.x + player.vx, 10, world.w() - 10);
     player.y = clamp(player.y + player.vy, 10, world.h() - 10);
 
-    // dış alan hasarı (oyunun mekaniklerinden biri; görsel safe ring kaldırıldı)
-    if (dist(player.x, player.y, world.cx(), world.cy()) > params.safeRadius) {
-      player.hp -= params.outDPS * dt;
+    // ---------- DÜZELTİLMİŞ KISIM: dış alan hasarı (toleranslı) ----------
+    const dToCenter = dist(player.x, player.y, world.cx(), world.cy());
+    if (dToCenter > params.safeRadius) {
+      outsideTimer += dt;
+      if (outsideTimer >= OUTSIDE_GRACE) {
+        player.hp -= params.outDPS * dt;
+      }
+    } else {
+      outsideTimer = 0;
     }
+    // ---------------------------------------------------------------------
 
     // mermiler
     for (let i = bullets.length - 1; i >= 0; i--) {
@@ -447,7 +461,6 @@
 
     // hazır bariyer mantığı: sayacı artır
     killsSinceLastActivation++;
-    // NOT: artık otomatik aktif olmuyor — yalnızca "hazır" oluyor (barBtn ile aktive edilmelidir)
   }
 
   /* ---------- çizim ---------- */
@@ -489,8 +502,6 @@
       ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4 * dpr;
       ctx.beginPath(); ctx.arc(player.x, player.y, barrierRadius, 0, Math.PI * 2); ctx.stroke();
       ctx.shadowBlur = 0; ctx.restore();
-    } else {
-      // pasif görünüm kaldırıldı (isteğiniz üzere)
     }
 
     // parçacıklar
@@ -505,7 +516,6 @@
     const pad = 10 * dpr; ctx.font = `${14 * dpr}px system-ui,-apple-system,Segoe UI,Roboto,Arial`; ctx.fillStyle = getCSS('--ink');
     ctx.fillText(`Skor: ${Math.floor(player.score).toLocaleString('tr-TR')}`, pad, 20 * dpr);
     ctx.fillText(`Çarpan: x${player.mult.toFixed(1)}`, pad, 38 * dpr);
-    // "Shard" artık yok — satır kaldırıldı
 
     // HP bar
     const barW = 160 * dpr, barH = 10 * dpr; const hpR = clamp(player.hp / player.hpMax, 0, 1);
